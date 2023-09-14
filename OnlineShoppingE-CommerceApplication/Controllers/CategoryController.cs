@@ -41,7 +41,7 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
                     {
                         Data = id,
                         Message = "Save fail",
-                        StatusCode = System.Net.HttpStatusCode.InternalServerError
+                        StatusCode = System.Net.HttpStatusCode.BadRequest
                     };
 
                     return result;

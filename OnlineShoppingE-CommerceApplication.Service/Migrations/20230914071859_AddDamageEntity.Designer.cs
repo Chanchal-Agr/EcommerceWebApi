@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OnlineShoppingE_CommerceApplication.Service.Database;
 
@@ -11,9 +12,11 @@ using OnlineShoppingE_CommerceApplication.Service.Database;
 namespace OnlineShoppingE_CommerceApplication.Service.Migrations
 {
     [DbContext(typeof(OnlineShoppingDbContext))]
-    partial class OnlineShoppingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230914071859_AddDamageEntity")]
+    partial class AddDamageEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -107,30 +110,6 @@ namespace OnlineShoppingE_CommerceApplication.Service.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Colour");
-                });
-
-            modelBuilder.Entity("OnlineShoppingE_CommerceApplication.Provider.Entities.Damage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StockId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StockId");
-
-                    b.ToTable("Damage");
                 });
 
             modelBuilder.Entity("OnlineShoppingE_CommerceApplication.Provider.Entities.Order", b =>
@@ -480,17 +459,6 @@ namespace OnlineShoppingE_CommerceApplication.Service.Migrations
                     b.Navigation("Customer");
 
                     b.Navigation("ProductVariant");
-                });
-
-            modelBuilder.Entity("OnlineShoppingE_CommerceApplication.Provider.Entities.Damage", b =>
-                {
-                    b.HasOne("OnlineShoppingE_CommerceApplication.Provider.Entities.Stock", "Stock")
-                        .WithMany()
-                        .HasForeignKey("StockId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Stock");
                 });
 
             modelBuilder.Entity("OnlineShoppingE_CommerceApplication.Provider.Entities.Order", b =>

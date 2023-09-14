@@ -92,7 +92,7 @@ public class ProductController : ControllerBase
                     {
                         Message = "Product cannot updated",
                         Data = false,
-                        StatusCode = System.Net.HttpStatusCode.InternalServerError
+                        StatusCode = System.Net.HttpStatusCode.BadRequest
                     };
                     return result;
                 }
@@ -192,7 +192,7 @@ public class ProductController : ControllerBase
             {
                 Data = null,
                 Message = e.Message,
-                StatusCode = System.Net.HttpStatusCode.NoContent
+                StatusCode = System.Net.HttpStatusCode.InternalServerError
 
             };
             return list;
@@ -261,7 +261,7 @@ public class ProductController : ControllerBase
                 {
                     Data = id,
                     Message = "Save fail",
-                    StatusCode = System.Net.HttpStatusCode.InternalServerError
+                    StatusCode = System.Net.HttpStatusCode.BadRequest
                 };
         }
         catch (Exception e)

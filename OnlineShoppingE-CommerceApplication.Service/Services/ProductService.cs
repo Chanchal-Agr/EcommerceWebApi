@@ -170,7 +170,56 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                 return productInfo;
             }
         }
-        public async Task<int> AddProductAndItsVariant(ProductAndVariantDto dto)
+        //public async Task<int> AddProductAndItsVariant(ProductAndVariantDto dto)
+        //{
+        //    var transaction = dbContext.Database.BeginTransaction();
+        //    try
+        //    {
+        //        Product product = new Product();
+        //        product.CategoryId = dto.ProductCategory;
+        //        product.Name = dto.ProductName;
+        //        product.Description = dto.ProductDescription;
+        //        dbContext.Product.Add(product);
+        //        await dbContext.SaveChangesAsync();
+        //        ProductVariant productVariant = new ProductVariant();
+        //        productVariant.IsActive = true;
+        //        productVariant.ColourId = dto.Variants.ColourId;
+        //        productVariant.ProductId = product.Id;
+        //        productVariant.SizeId = dto.Variants.SizeId;
+
+        //        if (dto.Variants.Images != null)
+        //        {
+        //            var a = System.IO.Directory.GetCurrentDirectory();
+        //            List<string> paths = new List<string>();
+        //            foreach (var image in dto.Variants.Images)
+        //            {
+        //                var path = Path.Combine(a, "Images\\ProductVariants\\", image.FileName);
+        //                //productVariant.Path += string.Concat("|Images\\ProductVariants\\", image.FileName);
+        //                paths.Add(string.Concat("Images\\ProductVariants\\", image.FileName));
+        //                if (image.FileName.Length > 0)
+        //                {
+        //                    using (FileStream filestream = System.IO.File.Create(path))
+        //                    {
+        //                        image.CopyTo(filestream);
+        //                        filestream.Flush();
+        //                    }
+        //                }
+        //            }
+        //            productVariant.Path = String.Join("|", paths);
+
+        //        }
+        //        dbContext.ProductVariant.Add(productVariant);
+        //        await dbContext.SaveChangesAsync();
+        //        transaction.Commit();
+        //        return product.Id;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        transaction.Rollback();
+        //        throw ex;
+        //    }
+        //}
+        public async Task<int> AddProductAndItsVariant( ProductAndVariantDto dto)
         {
             var transaction = dbContext.Database.BeginTransaction();
             try
@@ -181,35 +230,36 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                 product.Description = dto.ProductDescription;
                 dbContext.Product.Add(product);
                 await dbContext.SaveChangesAsync();
-                ProductVariant productVariant = new ProductVariant();
-                productVariant.IsActive = true;
-                productVariant.ColourId = dto.Variants.ColourId;
-                productVariant.ProductId = product.Id;
-                productVariant.SizeId = dto.Variants.SizeId;
-
-                if (dto.Variants.Images != null)
+                foreach (var item in dto.Variants)
                 {
-                    var a = System.IO.Directory.GetCurrentDirectory();
-                    List<string> paths = new List<string>();
-                    foreach (var image in dto.Variants.Images)
+                    ProductVariant productVariant = new ProductVariant();
+                    productVariant.IsActive = true;
+                    productVariant.ColourId = item.ColourId;
+                    productVariant.ProductId = product.Id;
+                    productVariant.SizeId = item.SizeId;
+                    if (item.Images != null)
                     {
-                        var path = Path.Combine(a, "Images\\ProductVariants\\", image.FileName);
-                        //productVariant.Path += string.Concat("|Images\\ProductVariants\\", image.FileName);
-                        paths.Add(string.Concat("Images\\ProductVariants\\", image.FileName));
-                        if (image.FileName.Length > 0)
+                        var a = System.IO.Directory.GetCurrentDirectory();
+                        List<string> paths = new List<string>();
+                        foreach (var image in item.Images)
                         {
-                            using (FileStream filestream = System.IO.File.Create(path))
+                            var path = Path.Combine(a, "Images\\ProductVariants\\", image.FileName);
+                            //productVariant.Path += string.Concat("|Images\\ProductVariants\\", image.FileName);
+                            paths.Add(string.Concat("Images\\ProductVariants\\", image.FileName));
+                            if (image.FileName.Length > 0)
                             {
-                                image.CopyTo(filestream);
-                                filestream.Flush();
+                                using (FileStream filestream = System.IO.File.Create(path))
+                                {
+                                    image.CopyTo(filestream);
+                                    filestream.Flush();
+                                }
                             }
                         }
+                        productVariant.Path = String.Join("|", paths);
                     }
-                    productVariant.Path = String.Join("|", paths);
-
+                    dbContext.ProductVariant.Add(productVariant);
+                    await dbContext.SaveChangesAsync();
                 }
-                dbContext.ProductVariant.Add(productVariant);
-                await dbContext.SaveChangesAsync();
                 transaction.Commit();
                 return product.Id;
             }

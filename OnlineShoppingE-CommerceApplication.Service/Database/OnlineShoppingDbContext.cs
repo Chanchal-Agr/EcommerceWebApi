@@ -21,6 +21,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Database
         public DbSet<Stock> Stock { get; set; }
         public DbSet<VProduct> VProduct { get; set; }
         public DbSet<Wishlist> Wishlist { get; set; }
+        public DbSet<Damage> Damage { get; set; }
         
 
     }

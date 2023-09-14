@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OnlineShoppingE_CommerceApplication.Service.Database;
 
@@ -11,9 +12,11 @@ using OnlineShoppingE_CommerceApplication.Service.Database;
 namespace OnlineShoppingE_CommerceApplication.Service.Migrations
 {
     [DbContext(typeof(OnlineShoppingDbContext))]
-    partial class OnlineShoppingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230914072858_AddDamageTable")]
+    partial class AddDamageTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -111,11 +114,11 @@ namespace OnlineShoppingE_CommerceApplication.Service.Migrations
 
             modelBuilder.Entity("OnlineShoppingE_CommerceApplication.Provider.Entities.Damage", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -126,7 +129,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Migrations
                     b.Property<int>("StockId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("ID");
 
                     b.HasIndex("StockId");
 

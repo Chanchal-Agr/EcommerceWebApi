@@ -11,7 +11,7 @@ namespace OnlineShoppingE_CommerceApplication.Provider.DTOs
         public string ProductName { get; set; }
         public string? ProductDescription { get; set; }
         public int ProductCategory { get; set; }
-        //public List<ProductVariantDto>? Variants { get; set; }
-        public ProductVariantDto Variants { get; set; }
+        public List<ProductVariantDto>? Variants { get; set; }
+        //public ProductVariantDto Variants { get; set; }
     }
 }

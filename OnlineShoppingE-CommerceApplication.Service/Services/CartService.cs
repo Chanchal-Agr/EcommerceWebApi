@@ -47,7 +47,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
         public async Task<CartInfoDto> GetDetails(int customerId)
         {
             CartInfoDto cartInfo = new CartInfoDto();
-            var cart = dbContext.Cart.Include(p=>p.ProductVariant).ThenInclude(p=>p.Product).Where(s => s.CustomerId == customerId);
+            var cart =  dbContext.Cart.Include(p=>p.ProductVariant).ThenInclude(p=>p.Product).Where(s => s.CustomerId == customerId);
             if (cart.IsNullOrEmpty())
             {
                 return null;

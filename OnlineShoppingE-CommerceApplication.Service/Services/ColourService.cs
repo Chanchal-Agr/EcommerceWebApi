@@ -20,15 +20,14 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
 
         public async Task<int> Post(Colour colour)
         {
-            colour.IsActive = true;
             var transaction = dbContext.Database.BeginTransaction();
+            colour.IsActive = true;
             try
             {
                 if (colour.Icon != null)
                 {
                     var a = System.IO.Directory.GetCurrentDirectory();
                     var path = Path.Combine(a, "Images\\ColourIcons\\", colour.Icon.FileName);
-
                     colour.Path = string.Concat("Images\\ColourIcons\\", colour.Icon.FileName);
                     if (colour.Icon.Length > 0)
                     {
@@ -38,17 +37,16 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                             filestream.Flush();
                         }
                     }
-                    transaction.Commit();
                 }
                 dbContext.Colour.Add(colour);
                 await dbContext.SaveChangesAsync();
+                transaction.Commit();
                 return colour.Id;
             }
             catch (Exception ex)
             {
                 transaction.Rollback();
-                return 0;
-
+                throw ex;
             }
         }
         public async Task<ColourDto> GetAll(QueryBase query)
@@ -91,9 +89,6 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
             colourDto.ColourDetails = colourList;
             colourDto.TotalRecords = count;
             return colourDto;
-            
-           
-
         }
 
         public async Task<bool> Update(Colour colour, int id)

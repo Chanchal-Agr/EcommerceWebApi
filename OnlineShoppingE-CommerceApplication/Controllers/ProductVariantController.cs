@@ -1,0 +1,104 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using OnlineShoppingE_CommerceApplication.Provider.Enums;
+using OnlineShoppingE_CommerceApplication.Provider.Interface;
+using OnlineShoppingE_CommerceApplication.Provider.Entities;
+using OnlineShoppingE_CommerceApplication.Service.Services;
+using OnlineShoppingE_CommerceApplication.Provider.DTOs;
+
+namespace OnlineShoppingE_CommerceApplication.Controllers;
+
+[Route("api/[controller]/[action]")]
+[ApiController]
+public class ProductVariantController : ControllerBase
+{
+    private readonly IProductVariantService productVariantService;
+    public ProductVariantController(IProductVariantService productVariantService)
+    {
+        this.productVariantService = productVariantService;
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
+    public async Task<Response<int>> AddProductVariant([FromForm] ProductVariantDto productVariant)
+    {
+        try
+        {
+            int id = await productVariantService.Post(productVariant);
+            if (id > 0)
+            {
+                Response<int> result = new Response<int>()
+                {
+                    Data = id,
+                    Message = "Save successful",
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+                return result;
+            }
+            else
+            {
+                Response<int> result = new Response<int>()
+                {
+                    Data = id,
+                    Message = "Save fail",
+                    StatusCode = System.Net.HttpStatusCode.InternalServerError
+                };
+
+                return result;
+            }
+        }
+        catch (Exception e)
+        {
+            Response<int> result = new Response<int>()
+            {
+                Data = 0,
+                Message = e.Message,
+                StatusCode = System.Net.HttpStatusCode.InternalServerError
+            };
+            return result;
+        }
+    }
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
+    public async Task<Response<bool>> AddProductVariantList([FromForm] List<ProductVariantDto> productVariant)
+    {
+        try
+        {
+            bool ans = await productVariantService.Post(productVariant);
+            if (ans)
+            {
+                Response<bool> result = new Response<bool>()
+                {
+                    Data = true,
+                    Message = "Save successful",
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+                return result;
+            }
+            else
+            {
+                Response<bool> result = new Response<bool>()
+                {
+                    Data = false,
+                    Message = "Save fail",
+                    StatusCode = System.Net.HttpStatusCode.InternalServerError
+                };
+
+                return result;
+            }
+        }
+        catch (Exception e)
+        {
+            Response<bool> result = new Response<bool>()
+            {
+                Data = false,
+                Message = e.Message,
+                StatusCode = System.Net.HttpStatusCode.InternalServerError
+            };
+            return result;
+        }
+    }
+
+
+}

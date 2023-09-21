@@ -17,6 +17,7 @@ namespace OnlineShoppingE_CommerceApplication.Provider.Interface
         Task<bool> UpdateProfile(UserInfoDto info, int userId);
         Task<string> GenerateOtp(string mobileNo, int userId);
         Task<bool> ForgotPassword(string otp, string newPassword,int userId);
+        Task<List<UserDto>> GetAllProfiles();
 
     }
 }

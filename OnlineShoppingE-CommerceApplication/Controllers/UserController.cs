@@ -106,7 +106,6 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
             try
             {
                 int userId = Convert.ToInt32(HttpContext.User.Claims.First(c => c.Type == "Id").Value);
-            
                 var result = await userService.Profile(id,userId);
                 if (result != null)
                     return new Provider.Entities.Response<UserDto>()
@@ -273,6 +272,42 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
                 return new Provider.Entities.Response<bool>()
                 {
                     Data = false,
+                    Message = e.Message,
+                    StatusCode = System.Net.HttpStatusCode.InternalServerError
+
+                };
+            }
+        }
+
+        [Authorize(Roles ="Admin")]
+        [HttpGet]
+        public async Task<Provider.Entities.Response<List<UserDto>>> GetAllProfiles()
+        {
+            try
+            {
+                
+                var result = await userService.GetAllProfiles();
+                if (result != null)
+                    return new Provider.Entities.Response<List<UserDto>>()
+                    {
+                        Data = result,
+                        Message = "All profiles fetched successfully",
+                        StatusCode = System.Net.HttpStatusCode.OK
+                    };
+                else
+                    return new Provider.Entities.Response<List<UserDto>>()
+                    {
+                        Data = null,
+                        Message = "No user found",
+                        StatusCode = System.Net.HttpStatusCode.NoContent
+
+                    };
+            }
+            catch (Exception e)
+            {
+                return new Provider.Entities.Response<List<UserDto>>()
+                {
+                    Data = null,
                     Message = e.Message,
                     StatusCode = System.Net.HttpStatusCode.InternalServerError
 

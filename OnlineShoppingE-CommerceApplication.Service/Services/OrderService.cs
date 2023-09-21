@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using OnlineShoppingE_CommerceApplication.Provider.DTOs;
 using OnlineShoppingE_CommerceApplication.Provider.Entities;
 using OnlineShoppingE_CommerceApplication.Provider.Interface;
@@ -7,13 +6,11 @@ using OnlineShoppingE_CommerceApplication.Service.Database;
 using OnlineShoppingE_CommerceApplication.Provider.Enums;
 using System.Linq.Dynamic.Core;
 using OnlineShoppingE_CommerceApplication.Provider.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Security.Cryptography.X509Certificates;
+using Microsoft.AspNetCore.Mvc;
+using PdfSharpCore.Pdf;
+using PdfSharpCore;
+using TheArtOfDev.HtmlRenderer.PdfSharp;
 
 namespace OnlineShoppingE_CommerceApplication.Service.Services;
 public class OrderService : IOrderService
@@ -275,14 +272,12 @@ public class OrderService : IOrderService
         var orders = dbContext.OrderDetail.Include(x => x.ProductVariant).Include(x => x.Order).ThenInclude(x => x.Customer).Where(x => x.OrderId == orderId).ToList();
         if (orders == null)
             return null;
-
         orderDetail.CustomerId = orders.FirstOrDefault().Order.Customer.Id;
         orderDetail.CustomerName = orders.FirstOrDefault().Order.Customer.Name;
         orderDetail.OrderId = orderId;
-
+        orderDetail.ItemDetails = new List<ItemDetail>();
         foreach (var order in orders)
         {
-            orderDetail.ItemDetails = new List<ItemDetail>();
             orderDetail.ItemDetails.Add(new ItemDetail()
             {
                 Id = order.Id,
@@ -293,4 +288,112 @@ public class OrderService : IOrderService
         }
         return orderDetail;
     }
+    public async Task<InvoiceDto> GetInvoice(int customerId,int orderId)
+    {
+        InvoiceDto invoice = new InvoiceDto();
+        var orders = dbContext.OrderDetail.Include(x => x.ProductVariant).Include(x => x.Order).ThenInclude(x => x.Customer).Where(x=> x.OrderId == orderId && x.Order.Status==Provider.Enums.OrderStatus.Delivered && x.Order.Customer.Id==customerId).ToList();
+        if (orders.Count == 0)
+            return null;
+        invoice.CustomerName = orders.FirstOrDefault().Order.Customer.Name;
+        invoice.CustomerAddress = orders.FirstOrDefault().Order.ShippingAddress;
+        invoice.OrderNo = orders.FirstOrDefault().Order.OrderNo;
+        invoice.OrderDate = orders.FirstOrDefault().Order.CreatedAt;
+        invoice.Orders = new List<OrderInvoice>();
+        foreach (var order in orders)
+        {
+            invoice.Orders.Add(new OrderInvoice()
+            {
+                Quantity = order.Quantity,
+                Price = order.Price,
+                ProductVariantId = order.ProductVariantId,
+                Total = order.Quantity * order.Price,
+                Size = dbContext.Size.FirstOrDefault(x=>x.Id==order.ProductVariant.SizeId).Name,
+                Colour = dbContext.Colour.FirstOrDefault(x=>x.Id==order.ProductVariant.ColourId).Name,
+                ProductName = dbContext.Product.FirstOrDefault(x=>x.Id==order.ProductVariant.ProductId).Name
+            });
+        }
+        invoice.SummaryTotal = orders.FirstOrDefault().Order.TotalPrice;
+        invoice.SummaryTax = (invoice.SummaryTotal * 5) / 100;
+        invoice.SummaryNetTotal = invoice.SummaryTotal + invoice.SummaryTax;
+        return invoice;
+        
+    }
+    public async Task<Tuple<byte[],string>> GenerateInvoice(int customerId, int orderId)
+    {
+        var invoice = await GetInvoice(customerId, orderId);
+        if (invoice == null)
+            return null;
+        var document = new PdfDocument();
+        string htmlcontent = "<div style='width:100%; text-align:center'>";
+
+        htmlcontent += "<h2> Invoice No:" + invoice.OrderNo + " & Invoice Date:" + invoice.OrderDate + "</h2>";
+        htmlcontent += "<h3> Customer : " + invoice.CustomerName + "</h3>";
+        htmlcontent += "<p>" + "Address : " + invoice.CustomerAddress + "</p>";
+        htmlcontent += "<h3> Contact : 09796709306 & Email :admin@gmail.com </h3>";
+        htmlcontent += "<div>";
+
+        htmlcontent += "<table style ='width:100%; border: 1px solid #000'>";
+        htmlcontent += "<thead style='font-weight:bold'>";
+        htmlcontent += "<tr>";
+        htmlcontent += "<td style='border:1px solid #000'> Product Variant Code </td>";
+        htmlcontent += "<td style='border:1px solid #000'> Product Name </td>";
+        htmlcontent += "<td style='border:1px solid #000'> Size </td>";
+        htmlcontent += "<td style='border:1px solid #000'> Colour </td>";
+        htmlcontent += "<td style='border:1px solid #000'>Qty</td>";
+        htmlcontent += "<td style='border:1px solid #000'>Price</td >";
+        htmlcontent += "<td style='border:1px solid #000'>Total</td>";
+        htmlcontent += "</tr>";
+        htmlcontent += "</thead >";
+
+        htmlcontent += "<tbody>";
+        invoice.Orders.ForEach(item =>
+            {
+                htmlcontent += "<tr>";
+                htmlcontent += "<td>" + item.ProductVariantId + "</td>";
+                htmlcontent += "<td>" + item.ProductName + "</td>";
+                htmlcontent += "<td>" + item.Size + "</td >";
+                htmlcontent += "<td>" + item.Colour + "</td>";
+                htmlcontent += "<td>" + item.Quantity + "</td>";
+                htmlcontent += "<td>" + item.Price + "</td>";
+                htmlcontent += "<td> " + item.Total + "</td >";
+                htmlcontent += "</tr>";
+            });
+        
+        htmlcontent += "</tbody>";
+
+        htmlcontent += "</table>";
+        htmlcontent += "</div>";
+
+        htmlcontent += "<div style='text-align:right'>";
+        htmlcontent += "<h1> Summary Info </h1>";
+        htmlcontent += "<table style='border:1px solid #000;float:right' >";
+        htmlcontent += "<tr>";
+        htmlcontent += "<td style='border:1px solid #000'> Summary Total </td>";
+        htmlcontent += "<td style='border:1px solid #000'> Summary Tax </td>";
+        htmlcontent += "<td style='border:1px solid #000'> Summary NetTotal </td>";
+        htmlcontent += "</tr>";
+
+        htmlcontent += "<tr>";
+        htmlcontent += "<td style='border: 1px solid #000'> " + invoice.SummaryTotal + " </td>";
+        htmlcontent += "<td style='border: 1px solid #000'>" + invoice.SummaryTax + "</td>";
+        htmlcontent += "<td style='border: 1px solid #000'> " + invoice.SummaryNetTotal + "</td>";
+        htmlcontent += "</tr>";
+
+        htmlcontent += "</table>";
+        htmlcontent += "</div>";
+
+        htmlcontent += "</div>";
+        PdfGenerator.AddPdfPages(document, htmlcontent, PageSize.A4);
+        byte[]? response = null;
+        using (MemoryStream stream = new MemoryStream())
+        {
+            document.Save(stream);
+            response = stream.ToArray();
+        }
+        string Filename = "sample.pdf";
+        return new Tuple<byte[], string>(response, Filename);
+    }
+
+
+
 }

@@ -149,5 +149,27 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
             await dbContext.SaveChangesAsync();
             return true;
         }
+        public async Task<List<UserDto>> GetAllProfiles()
+        {
+            var data = dbContext.User.Where(x=>x.IsActive == true);
+
+            if (data == null)
+            return null;
+
+            List<UserDto> users = new List<UserDto>();
+            foreach(var user in data) {
+                users.Add(new UserDto()
+                {
+                    Id = user.Id,
+                    Role=user.Role,
+                    Email=user.Email,
+                    Address=user.Address,
+                    City=user.City,
+                    Name=user.Name,
+                    Mobile=user.Mobile,
+                });
+            }
+            return users;
+        }
     }
 }

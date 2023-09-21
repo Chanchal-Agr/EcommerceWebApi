@@ -5,6 +5,7 @@ using OnlineShoppingE_CommerceApplication.Provider.Enums;
 using OnlineShoppingE_CommerceApplication.Provider.Entities;
 using OnlineShoppingE_CommerceApplication.Provider.Interface;
 using OnlineShoppingE_CommerceApplication.Service.Services;
+using Azure;
 
 namespace OnlineShoppingE_CommerceApplication.Controllers
 {
@@ -103,14 +104,14 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<Response<OrderInfoDto>> GetOrders(OrderQuery query)
+        public async Task<Provider.Entities.Response<OrderInfoDto>> GetOrders(OrderQuery query)
         {
             try
             {
                 var result = await orderService.GetOrders(query);
                 if (result != null)
                 {
-                    return new Response<OrderInfoDto>()
+                    return new Provider.Entities.Response<OrderInfoDto>()
                     {
                         Data = result,
                         Message = "List of orders fetched successfully",
@@ -119,7 +120,7 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
                 }
                 else
                 {
-                    return new Response<OrderInfoDto>()
+                    return new Provider.Entities.Response<OrderInfoDto>()
                     {
                         Data = null,
                         Message = "No order found",
@@ -130,7 +131,7 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
             }
             catch (Exception e)
             {
-                return new Response<OrderInfoDto>()
+                return new Provider.Entities.Response<OrderInfoDto>()
                 {
                     Data = null,
                     Message = e.Message,
@@ -141,14 +142,14 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
         }
         [HttpGet]
         [Authorize]
-        public async Task<Response<OrderDetailDto>> GetById(int orderId)
+        public async Task<Provider.Entities.Response<OrderDetailDto>> GetById(int orderId)
         {
             try
             {
                 var result = await orderService.GetById(orderId);
                 if (result != null)
                 {
-                    return new Response<OrderDetailDto>()
+                    return new Provider.Entities.Response<OrderDetailDto>()
                     {
                         Data = result,
                         Message = "Order details fetched successfully",
@@ -157,7 +158,7 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
                 }
                 else
                 {
-                    return new Response<OrderDetailDto>()
+                    return new Provider.Entities.Response<OrderDetailDto>()
                     {
                         Data = null,
                         Message = "No order found",
@@ -168,7 +169,7 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
             }
             catch (Exception e)
             {
-                return new Response<OrderDetailDto>()
+                return new Provider.Entities.Response<OrderDetailDto>()
                 {
                     Data = null,
                     Message = e.Message,
@@ -176,6 +177,17 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
 
                 };
             }
+        }
+
+        [Authorize]
+        [HttpGet("{customerId}/{orderId}")]
+        public async Task<IActionResult> GenerateInvoice(int customerId, int orderId)
+        {
+            var ss = await orderService.GenerateInvoice(customerId, orderId);
+            if(ss!=null)
+               return File(ss.Item1, "application/pdf", ss.Item2);
+           
+            return NotFound();
         }
     }
 }

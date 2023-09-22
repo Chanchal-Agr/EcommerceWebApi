@@ -92,7 +92,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
             User? user = null;
             if (userId == info.UserId || (dbContext.User.FirstOrDefault(x => x.Id == userId && x.Role == Provider.Enums.Roles.Admin)) != null)
             {
-                user = dbContext.User.FirstOrDefault(x => x.Id == userId && x.IsActive == true);
+                user = dbContext.User.FirstOrDefault(x => x.Id == info.UserId && x.IsActive == true);
                 if (user == null)
                     return false;
             }

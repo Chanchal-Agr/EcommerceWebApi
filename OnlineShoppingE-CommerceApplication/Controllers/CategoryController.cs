@@ -40,7 +40,7 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
                     Response<int> result = new Response<int>()
                     {
                         Data = id,
-                        Message = "Save fail",
+                        Message = "Save fail, Category already exists",
                         StatusCode = System.Net.HttpStatusCode.BadRequest
                     };
 

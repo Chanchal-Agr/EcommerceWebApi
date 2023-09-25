@@ -125,14 +125,20 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
                 else
                 {
                     bool ans = await colourService.Update(colour, id);
-                    Response<bool> result = new Response<bool>()
-                    {
-                        Message = "Colour updated",
-                        Data = true,
-                        StatusCode = System.Net.HttpStatusCode.OK
-                    };
-                    return result;
-
+                    if (ans)
+                        return new Response<bool>()
+                        {
+                            Message = "Colour updated",
+                            Data = true,
+                            StatusCode = System.Net.HttpStatusCode.OK
+                        };
+                    else
+                        return new Response<bool>()
+                        {
+                            Message = "Colour cant updated as already exists",
+                            Data = false,
+                            StatusCode = System.Net.HttpStatusCode.InternalServerError
+                        };
                 }
             }
 

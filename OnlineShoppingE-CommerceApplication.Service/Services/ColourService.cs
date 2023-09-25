@@ -25,6 +25,8 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
             colour.IsActive = true;
             try
             {
+                if (dbContext.Colour.FirstOrDefault(x => x.Name == colour.Name) != null)
+                    return 0;
                 if (colour.Icon != null)
                 {
                     var a = System.IO.Directory.GetCurrentDirectory();
@@ -102,6 +104,8 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
 
                 var colourToUpdate = await dbContext.Colour.FirstAsync(e => e.Id == id && e.IsActive == true);
                 colourToUpdate.UpdatedAt = DateTime.Now;
+                if (dbContext.Colour.FirstOrDefault(x => x.Name == colour.Name) != null)
+                    return false;
                 colourToUpdate.Name = colour.Name;
                 if (colour.Icon != null)
                 {

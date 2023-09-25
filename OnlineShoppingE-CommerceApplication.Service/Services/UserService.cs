@@ -46,6 +46,8 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
         public async Task<UserDto> Profile(int id ,int userId)
         {
             User? data = null;
+            if (id == 0)
+                id = userId;
             if (userId == id || (dbContext.User.FirstOrDefault(x => x.Id == userId && x.Role == Provider.Enums.Roles.Admin)) != null)
             {
                 data = dbContext.User.FirstOrDefault(x => x.Id == id && x.IsActive == true);

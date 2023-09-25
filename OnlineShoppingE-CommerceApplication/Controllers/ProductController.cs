@@ -161,7 +161,8 @@ public class ProductController : ControllerBase
     {
         try
         {
-            var result = await productService.QueryProduct(productQuery);
+            int? userId = Convert.ToInt32(HttpContext?.User?.Claims?.FirstOrDefault(c => c.Type == "Id")?.Value);
+            var result = await productService.QueryProduct(productQuery,userId??0);
             if (result != null)
             {
                 Response<ProductDto> list = new Response<ProductDto>()

@@ -55,12 +55,9 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
         {
             try
             {
-                int id = Convert.ToInt32(HttpContext.User.Claims.First(c => c.Type == "Id").Value);
-                if (id != 12)
-                {
-                    customerId = id;
-                }
-                var result = await wishlistService.GetWishlist(customerId);
+                int userId = Convert.ToInt32(HttpContext.User.Claims.First(c => c.Type == "Id").Value);
+               
+                var result = await wishlistService.GetWishlist(customerId,userId);
                 if (result != null)
                     return new Provider.Entities.Response<WishlistDto>()
                     {
@@ -89,7 +86,7 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
             }
         }
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Customer")]
+        [Authorize]
         public async Task<Provider.Entities.Response<bool>> Delete(int id)
         {
             try
@@ -108,7 +105,7 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
                     {
                         Data = true,
                         Message = "Product in a wishlist do not deleted",
-                        StatusCode = System.Net.HttpStatusCode.OK
+                        StatusCode = System.Net.HttpStatusCode.InternalServerError
                     };
             }
             catch (Exception e)

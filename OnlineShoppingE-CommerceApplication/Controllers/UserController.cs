@@ -99,9 +99,11 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
                 return result;
             }
         }
+
+
         [HttpGet("{id}")]
         [Authorize]
-        public async Task<Provider.Entities.Response<UserDto>> Profile(int id)
+        public async Task<Provider.Entities.Response<UserDto>> Profile(int id=0)
         {
             try
             {

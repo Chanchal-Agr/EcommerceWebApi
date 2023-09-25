@@ -11,7 +11,7 @@ namespace OnlineShoppingE_CommerceApplication.Provider.Interface
     public interface IProductService
     {
          Task<int> AddProduct(Product product);
-         Task<ProductDto> QueryProduct(ProductQuery productQuery);
+         Task<ProductDto> QueryProduct(ProductQuery productQuery,int userId);
          Task<bool> Update(Product product, int id);
          Task<bool> UpdateStatus(int id, bool status);
          Task<ProductInfoDto> GetById(int id);

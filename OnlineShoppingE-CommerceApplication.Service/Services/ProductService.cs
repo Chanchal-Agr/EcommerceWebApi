@@ -76,16 +76,21 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                 throw exception;
             }
         }
-        public async Task<ProductDto> QueryProduct(ProductQuery productQuery)
+        public async Task<ProductDto> QueryProduct(ProductQuery productQuery, int userId)
         {
             ProductDto product = new ProductDto();
             var data = dbContext.VProduct.Where(p => p.CategoryId > 0 && (productQuery.CategoryId > 0 ? p.CategoryId == productQuery.CategoryId : true) && (!productQuery.Search.IsNullOrEmpty() ? (p.Description.Contains(productQuery.Search) || p.Name.Contains(productQuery.Search) || p.CategoryName.Contains(productQuery.Search)) : true)).AsQueryable();
 
+
+            if(userId!=0 && (dbContext.User.FirstOrDefault(x => x.Id == userId && x.Role == Provider.Enums.Roles.Admin))==null)
+                productQuery.CustomerId= userId;
+            if (userId == 0)
+                productQuery.CustomerId = 0;
+           
             if (productQuery.OrderBy != null)
                 data = QueryableExtensions.OrderBy(data, productQuery.OrderBy);
             product.TotalRecords = data.Count();
             product.ProductDetails = new List<ProductDetailDto>();
-
 
             if (productQuery.IsPagination)
             {

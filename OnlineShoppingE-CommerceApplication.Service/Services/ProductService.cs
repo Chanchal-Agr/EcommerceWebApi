@@ -270,5 +270,27 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
             }
         }
 
+        public async Task<int> Upsert(Product product)
+        {
+            if(product.Id>0)
+            {
+                var productToUpdate = await dbContext.Product.FirstAsync(e => e.Id == product.Id);
+
+                productToUpdate.UpdatedAt = DateTime.Now;
+                productToUpdate.Name = product.Name;
+                productToUpdate.Description = product.Description;
+                productToUpdate.CategoryId = product.CategoryId;
+            }
+            else
+            {
+                product.Name = product.Name;
+                product.Description = product.Description;
+                product.CategoryId = product.CategoryId;
+                dbContext.Product.Add(product);
+            }
+            await dbContext.SaveChangesAsync();
+            return product.Id;
+        }
+
     }
 }

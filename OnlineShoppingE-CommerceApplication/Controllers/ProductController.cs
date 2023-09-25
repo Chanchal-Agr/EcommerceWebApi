@@ -161,8 +161,6 @@ public class ProductController : ControllerBase
     {
         try
         {
-            int customerId = Convert.ToInt32(HttpContext.User.Claims.First(c => c.Type == "Id").Value);
-            productQuery.CustomerId = customerId;
             var result = await productService.QueryProduct(productQuery);
             if (result != null)
             {
@@ -272,6 +270,42 @@ public class ProductController : ControllerBase
                 Message = e.Message,
                 StatusCode = System.Net.HttpStatusCode.InternalServerError
             };
+        }
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
+    public async Task<Response<int>> Upsert(Product product)
+    {
+        try
+        {
+            int value = await productService.Upsert(product);
+            if (value > 0)
+                return new Response<int>()
+                {
+                    Message = "Executed successfully",
+                    Data = value,
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+
+            else
+                return new Response<int>()
+                {
+                    Message = "Operation failed",
+                    Data = value,
+                    StatusCode = System.Net.HttpStatusCode.BadRequest
+                };
+
+        }
+        catch (Exception e)
+        {
+            return new Response<int>()
+            {
+                Message = e.Message,
+                Data = 0,
+                StatusCode = System.Net.HttpStatusCode.InternalServerError
+            };
+
         }
     }
 

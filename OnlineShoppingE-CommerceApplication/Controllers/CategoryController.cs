@@ -101,7 +101,7 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
             }
 
         }
-        
+
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<Response<bool>> Update(Category category, int id)
@@ -203,7 +203,7 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<Response<CategoryDetailDto>> GetById(int id )
+        public async Task<Response<CategoryDetailDto>> GetById(int id)
         {
             try
             {
@@ -215,25 +215,61 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
                         Message = "Category fetched successfully",
                         StatusCode = System.Net.HttpStatusCode.OK
                     };
-                   
+
                 else
                     return new Response<CategoryDetailDto>()
-                    { 
+                    {
                         Data = null,
                         Message = "No category found",
                         StatusCode = System.Net.HttpStatusCode.NoContent
                     };
-                    
+
             }
             catch (Exception e)
             {
                 return new Response<CategoryDetailDto>()
-                { 
+                {
                     Data = null,
                     Message = e.Message,
                     StatusCode = System.Net.HttpStatusCode.InternalServerError
 
                 };
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<Response<int>> Upsert(Category category)
+        {
+            try
+            {
+                int value = await categoryService.Upsert(category);
+                if (value > 0)
+                    return new Response<int>()
+                    {
+                        Message = "Executed successfully",
+                        Data = value,
+                        StatusCode = System.Net.HttpStatusCode.OK
+                    };
+
+                else
+                    return new Response<int>()
+                    {
+                        Message = "Operation failed",
+                        Data = value,
+                        StatusCode = System.Net.HttpStatusCode.BadRequest
+                    };
+
+            }
+            catch (Exception e)
+            {
+                return new Response<int>()
+                {
+                    Message = e.Message,
+                    Data = 0,
+                    StatusCode = System.Net.HttpStatusCode.InternalServerError
+                };
+
             }
         }
 

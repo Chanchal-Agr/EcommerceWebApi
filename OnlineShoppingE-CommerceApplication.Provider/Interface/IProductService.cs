@@ -16,5 +16,6 @@ namespace OnlineShoppingE_CommerceApplication.Provider.Interface
          Task<bool> UpdateStatus(int id, bool status);
          Task<ProductInfoDto> GetById(int id);
          Task<int> AddProductAndItsVariant(ProductAndVariantDto dto);
+         Task<int> Upsert(Product product);
     }
 }

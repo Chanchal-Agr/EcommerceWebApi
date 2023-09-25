@@ -3,6 +3,7 @@ using OnlineShoppingE_CommerceApplication.Provider.DTOs;
 using OnlineShoppingE_CommerceApplication.Provider.Interface;
 using OnlineShoppingE_CommerceApplication.Service.Database;
 using OnlineShoppingE_CommerceApplication.Provider.Entities;
+using Microsoft.IdentityModel.Tokens;
 
 namespace OnlineShoppingE_CommerceApplication.Service.Services
 {
@@ -26,15 +27,15 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
         public async Task<SizeDto> GetAll(QueryBase query)
         {
             SizeDto sizeDto = new SizeDto();
-            List<Provider.Entities.Size> size = await dbContext.Size.Where(e => e.IsActive == true).ToListAsync();
-            var count = size.Count();
+            var data = dbContext.Size.Where(p => p.IsActive == true && (!query.Search.IsNullOrEmpty() ? (p.Description.Contains(query.Search) || p.Name.Contains(query.Search)) : true)).AsQueryable();
+            var count = data.Count();
            
             List<SizeDetailDto> sizeList = new List<SizeDetailDto>();
             if (query.IsPagination)
             {
                 int TotalPages = (int)Math.Ceiling(count / (double)query.PageSize);
 
-                var items = size.Skip((query.PageIndex - 1) * query.PageSize).Take(query.PageSize).ToList();
+                var items = data.Skip((query.PageIndex - 1) * query.PageSize).Take(query.PageSize).ToList();
 
 
                 foreach (var item in items)
@@ -48,7 +49,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
             }
             else
             {
-                foreach (var item in size)
+                foreach (var item in data)
                 {
                     SizeDetailDto sizeDetails = new SizeDetailDto();
                     sizeDetails.Id = item.Id;

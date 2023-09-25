@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using OnlineShoppingE_CommerceApplication.Provider.DTOs;
 using System.Drawing;
+using Microsoft.IdentityModel.Tokens;
 
 namespace OnlineShoppingE_CommerceApplication.Service.Services
 {
@@ -52,8 +53,11 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
         public async Task<ColourDto> GetAll(QueryBase query)
         {
             ColourDto colourDto = new ColourDto();
-            List<Colour> colours = await dbContext.Colour.Where(e => e.IsActive == true).ToListAsync();
-            var count = colours.Count();
+            var data = dbContext.Colour.Where(p => p.IsActive == true && (!query.Search.IsNullOrEmpty() ? p.Name.Contains(query.Search) : true)).AsQueryable();
+
+            //if (query.OrderBy != null)
+            //    data = QueryableExtensions.OrderBy(data, query.OrderBy);
+            var count = data.Count();
 
             List<ColourDetailDto> colourList = new List<ColourDetailDto>();
             var path = "D:\\Chanchal_Assignment\\OnlineShoppingE-CommerceApplication\\";
@@ -61,7 +65,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
             {
                 int TotalPages = (int)Math.Ceiling(count / (double)query.PageSize);
 
-                var items = colours.Skip((query.PageIndex - 1) * query.PageSize).Take(query.PageSize).ToList();
+                var items = data.Skip((query.PageIndex - 1) * query.PageSize).Take(query.PageSize).ToList();
 
 
                 foreach (var colour in items)
@@ -76,7 +80,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
             }
             else
             {
-                foreach (var colour in colours)
+                foreach (var colour in data)
                 {
                     ColourDetailDto colourDetails = new ColourDetailDto();
                     colourDetails.Id = colour.Id;

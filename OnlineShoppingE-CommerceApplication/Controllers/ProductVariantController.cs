@@ -100,5 +100,47 @@ public class ProductVariantController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id}/{status}")]
+    public async Task<Response<bool>> UpdateStatus(int id, bool status)
+    {
+        try
+        {
+            bool ans = await productVariantService.UpdateStatus(id, status);
+            if (ans)
+            {
+                Response<bool> result = new Response<bool>()
+                {
+                    Message = "Product variant's status updated",
+                    Data = true,
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+                return result;
+            }
+            else
+            {
+                Response<bool> result = new Response<bool>()
+                {
+                    Message = "Product variant's id not found",
+                    Data = false,
+                    StatusCode = System.Net.HttpStatusCode.NotFound
+                };
+                return result;
+            }
+        }
+        catch (Exception e)
+        {
+
+            Response<bool> result = new Response<bool>()
+            {
+                Message = e.Message,
+                Data = false,
+                StatusCode = System.Net.HttpStatusCode.InternalServerError
+            };
+            return result;
+        }
+    }
+
+
 
 }

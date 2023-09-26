@@ -111,4 +111,24 @@ public class ProductVariantService : IProductVariantService
             return false;
         }
     }
+    public async Task<bool> UpdateStatus(int id, bool status)
+    {
+        try
+        {
+            var variantToUpdate = await dbContext.ProductVariant.FirstOrDefaultAsync(e => e.Id == id);
+            if (variantToUpdate != null)
+            {
+                variantToUpdate.UpdatedAt = DateTime.Now;
+                variantToUpdate.IsActive = status;
+                await dbContext.SaveChangesAsync();
+                return true;
+            }
+            else
+                return false;
+        }
+        catch (DbUpdateException exception)
+        {
+            throw exception;
+        }
+    }
 }

@@ -12,5 +12,6 @@ namespace OnlineShoppingE_CommerceApplication.Provider.Interface
     {
          Task<int> Post(ProductVariantDto variant);
          Task<bool> Post(List<ProductVariantDto> variants);
+         Task<bool> UpdateStatus(int id, bool status);
     }
 }

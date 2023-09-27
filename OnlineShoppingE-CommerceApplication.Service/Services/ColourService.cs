@@ -19,42 +19,23 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
             this.environment = environment;
         }
 
-        public async Task<int> Post(Colour colour)
+        public async Task<int> Post(ColourDto colour)
         {
-            var transaction = dbContext.Database.BeginTransaction();
-            colour.IsActive = true;
-            try
-            {
-                if (dbContext.Colour.FirstOrDefault(x => x.Name == colour.Name) != null)
-                    return 0;
-                if (colour.Icon != null)
-                {
-                    var a = System.IO.Directory.GetCurrentDirectory();
-                    var path = Path.Combine(a, "Images\\ColourIcons\\", colour.Icon.FileName);
-                    colour.Path = string.Concat("Images\\ColourIcons\\", colour.Icon.FileName);
-                    if (colour.Icon.Length > 0)
-                    {
-                        using (FileStream filestream = System.IO.File.Create(path))
-                        {
-                            colour.Icon.CopyTo(filestream);
-                            filestream.Flush();
-                        }
-                    }
-                }
-                dbContext.Colour.Add(colour);
-                await dbContext.SaveChangesAsync();
-                transaction.Commit();
-                return colour.Id;
-            }
-            catch (Exception ex)
-            {
-                transaction.Rollback();
-                throw ex;
-            }
+            Colour color = new Colour();
+           
+            if (dbContext.Colour.FirstOrDefault(x => x.Name == colour.Name) != null)
+                return 0;
+            color.IsActive = true;
+            color.Name = colour.Name;
+            color.Path = colour.Path;
+            dbContext.Colour.Add(color);
+            await dbContext.SaveChangesAsync();
+            return color.Id;
+
         }
-        public async Task<ColourDto> GetAll(QueryBase query)
+        public async Task<ColourResponseDto> GetAll(QueryBase query)
         {
-            ColourDto colourDto = new ColourDto();
+            ColourResponseDto colourDto = new ColourResponseDto();
             var data = dbContext.Colour.Where(p => p.IsActive == true && (!query.Search.IsNullOrEmpty() ? p.Name.Contains(query.Search) : true)).AsQueryable();
 
             //if (query.OrderBy != null)
@@ -107,27 +88,27 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                 if (dbContext.Colour.FirstOrDefault(x => x.Name == colour.Name) != null)
                     return false;
                 colourToUpdate.Name = colour.Name;
-                if (colour.Icon != null)
-                {
-                    var a = System.IO.Directory.GetCurrentDirectory();
-                    if (colourToUpdate.Path != null)
-                    {
-                        var path = Path.Combine(a, colourToUpdate.Path);
-                        System.IO.File.Delete(path);
-                    }
+                //if (colour.Icon != null)
+                //{
+                //    var a = System.IO.Directory.GetCurrentDirectory();
+                //    if (colourToUpdate.Path != null)
+                //    {
+                //        var path = Path.Combine(a, colourToUpdate.Path);
+                //        System.IO.File.Delete(path);
+                //    }
 
-                    colourToUpdate.Path = string.Concat("Images\\ColourIcons\\", colour.Icon.FileName);
-                    var newPath = Path.Combine(a, "Images\\ColourIcons\\", colour.Icon.FileName);
+                //    colourToUpdate.Path = string.Concat("Images\\ColourIcons\\", colour.Icon.FileName);
+                //    var newPath = Path.Combine(a, "Images\\ColourIcons\\", colour.Icon.FileName);
 
-                    if (colour.Icon.Length > 0)
-                    {
-                        using (FileStream filestream = System.IO.File.Create(newPath))
-                        {
-                            colour.Icon.CopyTo(filestream);
-                            filestream.Flush();
-                        }
-                    }
-                }
+                //    if (colour.Icon.Length > 0)
+                //    {
+                //        using (FileStream filestream = System.IO.File.Create(newPath))
+                //        {
+                //            colour.Icon.CopyTo(filestream);
+                //            filestream.Flush();
+                //        }
+                //    }
+                //}
                 await dbContext.SaveChangesAsync();
                 return true;
             }
@@ -156,7 +137,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                 throw exception;
             }
         }
-        public async Task<ColourDetailDto> GetById(int id )
+        public async Task<ColourDetailDto> GetById(int id)
         {
             Colour? colour = await dbContext.Colour.FirstOrDefaultAsync(x => x.Id == id && x.IsActive == true);
             if (colour != null)
@@ -166,7 +147,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                     Name = colour.Name,
                     IconPath = colour.Path
                 };
-                return null;
+            return null;
         }
     }
 }

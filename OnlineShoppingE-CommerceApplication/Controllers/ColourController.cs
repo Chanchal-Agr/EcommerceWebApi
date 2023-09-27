@@ -23,7 +23,7 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<Response<int>> Post([FromForm] Colour colour)
+        public async Task<Response<int>> Post(ColourDto colour)
         {
             try
             {
@@ -43,7 +43,7 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
                     Response<int> result = new Response<int>()
                     {
                         Data = id,
-                        Message = "Save fail",
+                        Message = "Save fail,colour already exists",
                         StatusCode = System.Net.HttpStatusCode.InternalServerError
                     };
 
@@ -63,14 +63,14 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
         }
 
         [HttpPost]
-        public async Task<Response<ColourDto>> GetAll(QueryBase query)
+        public async Task<Response<ColourResponseDto>> GetAll(QueryBase query)
         {
             try
             {
                 var result = await colourService.GetAll(query);
                 if (result != null)
                 {
-                    Response<ColourDto> colours = new Response<ColourDto>()
+                    Response<ColourResponseDto> colours = new Response<ColourResponseDto>()
                     {
                         Data = result,
                         Message = "List of colours fetched successfully",
@@ -80,7 +80,7 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
                 }
                 else
                 {
-                    Response<ColourDto> colours = new Response<ColourDto>()
+                    Response<ColourResponseDto> colours = new Response<ColourResponseDto>()
                     {
                         Data = null,
                         Message = "No colour found",
@@ -92,7 +92,7 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
             }
             catch (Exception e)
             {
-                Response<ColourDto> colours = new Response<ColourDto>()
+                Response<ColourResponseDto> colours = new Response<ColourResponseDto>()
                 {
                     Data = null,
                     Message = e.Message,

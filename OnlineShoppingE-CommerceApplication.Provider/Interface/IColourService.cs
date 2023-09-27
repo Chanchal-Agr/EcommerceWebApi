@@ -7,8 +7,8 @@ namespace OnlineShoppingE_CommerceApplication.Provider.Interface
 {
     public interface IColourService
     {
-         Task<int> Post(Colour colour);
-         Task<ColourDto> GetAll(QueryBase query);
+         Task<int> Post(ColourDto colour);
+         Task<ColourResponseDto> GetAll(QueryBase query);
          Task<bool> Update(Colour colour, int id);
          Task<bool> UpdateStatus(int id, bool status);
          Task<ColourDetailDto> GetById(int id);

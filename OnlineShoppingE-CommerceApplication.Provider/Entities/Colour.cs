@@ -11,8 +11,8 @@ namespace OnlineShoppingE_CommerceApplication.Provider.Entities
     public class Colour : Base
     {
         public string Name { get; set; }
-        [NotMapped]
-        public IFormFile? Icon { get; set; }
+        //[NotMapped]
+        //public IFormFile? Icon { get; set; }
         public string? Path { get; set; }
     }
 }

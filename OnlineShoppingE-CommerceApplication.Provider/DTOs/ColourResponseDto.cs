@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace OnlineShoppingE_CommerceApplication.Provider.DTOs
 {
-    public class ColourDto
+    public class ColourResponseDto
     {
-        public string Name { get; set; }
-        public string Path { get; set; }
+        public List<ColourDetailDto> ColourDetails { get; set; }
+        public int TotalRecords { get; set; }
     }
 }

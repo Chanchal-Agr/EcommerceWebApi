@@ -10,7 +10,6 @@ namespace OnlineShoppingE_CommerceApplication.Provider.Interface
 {
     public interface IProductVariantService
     {
-         Task<int> Post(ProductVariantDto variant);
          Task<bool> Post(List<ProductVariantDto> variants);
          Task<bool> UpdateStatus(int id, bool status);
     }

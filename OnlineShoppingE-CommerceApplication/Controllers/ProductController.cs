@@ -39,7 +39,7 @@ public class ProductController : ControllerBase
                 return new Response<int>()
                 {
                     Data = id,
-                    Message = "Save fail",
+                    Message = "Save fail,product already exists",
                     StatusCode = System.Net.HttpStatusCode.InternalServerError
                 };
         }
@@ -242,7 +242,7 @@ public class ProductController : ControllerBase
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<Response<int>> AddProductAndItsVariant([FromForm] ProductAndVariantDto dto)
+    public async Task<Response<int>> AddProductAndItsVariant(ProductAndVariantDto dto)
     {
         try
         {
@@ -259,7 +259,7 @@ public class ProductController : ControllerBase
                 return new Response<int>()
                 {
                     Data = id,
-                    Message = "Save fail",
+                    Message = "Save fail,product already exists",
                     StatusCode = System.Net.HttpStatusCode.BadRequest
                 };
         }
@@ -274,41 +274,5 @@ public class ProductController : ControllerBase
         }
     }
 
-    [Authorize(Roles = "Admin")]
-    [HttpPost]
-    public async Task<Response<int>> Upsert(Product product)
-    {
-        try
-        {
-            int value = await productService.Upsert(product);
-            if (value > 0)
-                return new Response<int>()
-                {
-                    Message = "Executed successfully",
-                    Data = value,
-                    StatusCode = System.Net.HttpStatusCode.OK
-                };
-
-            else
-                return new Response<int>()
-                {
-                    Message = "Operation failed",
-                    Data = value,
-                    StatusCode = System.Net.HttpStatusCode.BadRequest
-                };
-
-        }
-        catch (Exception e)
-        {
-            return new Response<int>()
-            {
-                Message = e.Message,
-                Data = 0,
-                StatusCode = System.Net.HttpStatusCode.InternalServerError
-            };
-
-        }
-    }
-
-
+   
 }

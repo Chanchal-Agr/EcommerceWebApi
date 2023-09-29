@@ -108,6 +108,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                 if (dbContext.Colour.FirstOrDefault(x => x.Name == colour.Name) != null)
                     return false;
                 colourToUpdate.Name = colour.Name;
+                colourToUpdate.Path = colour.Path;
                 //if (colour.Icon != null)
                 //{
                 //    var a = System.IO.Directory.GetCurrentDirectory();

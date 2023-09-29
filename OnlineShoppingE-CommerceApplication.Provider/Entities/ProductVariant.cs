@@ -9,10 +9,8 @@ namespace OnlineShoppingE_CommerceApplication.Provider.Entities
         public int ProductId { get; set; }
         public int SizeId { get; set; }
         public int ColourId { get; set; }
-        public string? Path { get; set; }
-        [NotMapped]
-        public List<IFormFile?> Images { get; set; }
-
+        public string? Path { get; set; }//multiple
+        
         [ForeignKey("ProductId")]
         public Product Product { get; set; }
 

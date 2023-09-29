@@ -23,93 +23,26 @@ public class ProductVariantService : IProductVariantService
         this.dbContext = dbContext;
         this.environment = environment;
     }
-    public async Task<int> Post(ProductVariantDto variant)
-    {
-        ProductVariant productVariant = new ProductVariant();
-        productVariant.IsActive = true;
-        productVariant.ColourId = variant.ColourId;
-        productVariant.ProductId = variant.ProductId;
-        productVariant.SizeId = variant.SizeId;
-        var transaction = dbContext.Database.BeginTransaction();
-        try
-        {
-            if (variant.Images != null)
-            {
-                var a = System.IO.Directory.GetCurrentDirectory();
-                List<string> paths = new List<string>();
-                foreach (var image in variant.Images)
-                {
-                    var path = Path.Combine(a, "Images\\ProductVariants\\", image.FileName);
-                    //productVariant.Path += string.Concat("|Images\\ProductVariants\\", image.FileName);
-                    paths.Add(string.Concat("Images\\ProductVariants\\", image.FileName));
-                    if (image.FileName.Length > 0)
-                    {
-                        using (FileStream filestream = System.IO.File.Create(path))
-                        {
-                            image.CopyTo(filestream);
-                            filestream.Flush();
-                        }
-                    }
-                }
-                productVariant.Path = String.Join("|", paths);
 
-            }
-            dbContext.ProductVariant.Add(productVariant);
-            await dbContext.SaveChangesAsync();
-            transaction.Commit();
-            return productVariant.Id;
-
-        }
-        catch (Exception ex)
-        {
-
-            transaction.Rollback();
-            throw ex;
-        }
-    }
     public async Task<bool> Post(List<ProductVariantDto> variants)
     {
-        var transaction = dbContext.Database.BeginTransaction();
-        try
+
+        foreach (var item in variants)
         {
-            foreach (var item in variants)
-            {
-                ProductVariant productVariant = new ProductVariant();
-                productVariant.IsActive = true;
-                productVariant.ColourId = item.ColourId;
-                productVariant.ProductId = item.ProductId;
-                productVariant.SizeId = item.SizeId;
-                if (item.Images != null)
-                {
-                    var a = System.IO.Directory.GetCurrentDirectory();
-                    List<string> paths = new List<string>();
-                    foreach (var image in item.Images)
-                    {
-                        var path = Path.Combine(a, "Images\\ProductVariants\\", image.FileName);
-                        //productVariant.Path += string.Concat("|Images\\ProductVariants\\", image.FileName);
-                        paths.Add(string.Concat("Images\\ProductVariants\\", image.FileName));
-                        if (image.FileName.Length > 0)
-                        {
-                            using (FileStream filestream = System.IO.File.Create(path))
-                            {
-                                image.CopyTo(filestream);
-                                filestream.Flush();
-                            }
-                        }
-                    }
-                    productVariant.Path = String.Join("|", paths);
-                }
-                dbContext.ProductVariant.Add(productVariant);
-                await dbContext.SaveChangesAsync();
-            }
-            transaction.Commit();
-            return true;
+            ProductVariant productVariant = new ProductVariant();
+            productVariant.IsActive = true;
+            productVariant.ColourId = item.ColourId;
+            productVariant.ProductId = item.ProductId;
+            productVariant.SizeId = item.SizeId;
+
+            productVariant.Path = String.Join("|", item.Base64);
+            if (dbContext.ProductVariant.FirstOrDefault(x => x.ColourId == item.ColourId && x.ProductId == item.ProductId && x.SizeId == item.SizeId && x.IsActive==true) != null)
+                return false;
+            dbContext.ProductVariant.Add(productVariant);
+            dbContext.SaveChanges();
+
         }
-        catch(Exception ex)
-        {
-            transaction.Rollback();
-            return false;
-        }
+        return true;
     }
     public async Task<bool> UpdateStatus(int id, bool status)
     {

@@ -13,6 +13,7 @@ namespace OnlineShoppingE_CommerceApplication.Provider.DTOs
         public int ProductId { get; set; }
         public int SizeId { get; set; }
         public int ColourId { get; set; }
-        public List<IFormFile>? Images { get; set; }
+        //public List<IFormFile>? Images { get; set; }
+        public List<string> Base64 { get; set; }
     }
 }

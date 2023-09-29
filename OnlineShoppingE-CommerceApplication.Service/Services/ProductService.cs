@@ -5,16 +5,9 @@ using OnlineShoppingE_CommerceApplication.Provider.Entities;
 using OnlineShoppingE_CommerceApplication.Service.Database;
 using System.Linq.Dynamic.Core;
 //using OnlineShoppingE_CommerceApplication.Provider.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using System.Linq.Expressions;
 using OnlineShoppingE_CommerceApplication.Provider.Extensions;
-using Microsoft.AspNetCore.Mvc;
+
 
 namespace OnlineShoppingE_CommerceApplication.Service.Services
 {
@@ -31,6 +24,8 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
             product.Name = product.Name;
             product.Description = product.Description;
             product.CategoryId = product.CategoryId;
+            if (dbContext.Product.FirstOrDefault(x => x.Name == product.Name && x.CategoryId == product.CategoryId && x.IsActive == true) != null)
+                return 0;
             dbContext.Product.Add(product);
             await dbContext.SaveChangesAsync();
             return product.Id;
@@ -41,12 +36,15 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
         {
             try
             {
+                if (dbContext.Product.FirstOrDefault(x => x.Name == product.Name && x.CategoryId == product.CategoryId && x.Description == product.Description && x.IsActive == true) != null)
+                    return false;
                 var productToUpdate = await dbContext.Product.FirstAsync(e => e.Id == id);
 
                 productToUpdate.UpdatedAt = DateTime.Now;
                 productToUpdate.Name = product.Name;
                 productToUpdate.Description = product.Description;
                 productToUpdate.CategoryId = product.CategoryId;
+
                 await dbContext.SaveChangesAsync();
                 return true;
             }
@@ -82,11 +80,11 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
             var data = dbContext.VProduct.Where(p => p.CategoryId > 0 && (productQuery.CategoryId > 0 ? p.CategoryId == productQuery.CategoryId : true) && (!productQuery.Search.IsNullOrEmpty() ? (p.Description.Contains(productQuery.Search) || p.Name.Contains(productQuery.Search) || p.CategoryName.Contains(productQuery.Search)) : true)).AsQueryable();
 
 
-            if(userId!=0 && (dbContext.User.FirstOrDefault(x => x.Id == userId && x.Role == Provider.Enums.Roles.Admin))==null)
-                productQuery.CustomerId= userId;
+            if (userId != 0 && (dbContext.User.FirstOrDefault(x => x.Id == userId && x.Role == Provider.Enums.Roles.Admin)) == null)
+                productQuery.CustomerId = userId;
             if (userId == 0)
                 productQuery.CustomerId = 0;
-           
+
             if (productQuery.OrderBy != null)
                 data = QueryableExtensions.OrderBy(data, productQuery.OrderBy);
             product.TotalRecords = data.Count();
@@ -113,7 +111,6 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                         IsWishlist = (productQuery.CustomerId != 0 && wishlist != null) ? true : false
                     });
                 }
-
             }
             else
             {
@@ -135,7 +132,6 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                 }
             }
             return product;
-
         }
 
         public async Task<ProductInfoDto> GetById(int id)
@@ -224,7 +220,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
         //        throw ex;
         //    }
         //}
-        public async Task<int> AddProductAndItsVariant( ProductAndVariantDto dto)
+        public async Task<int> AddProductAndItsVariant(ProductAndVariantDto dto)
         {
             var transaction = dbContext.Database.BeginTransaction();
             try
@@ -233,6 +229,8 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                 product.CategoryId = dto.ProductCategory;
                 product.Name = dto.ProductName;
                 product.Description = dto.ProductDescription;
+                if (dbContext.Product.FirstOrDefault(x => x.CategoryId == dto.ProductCategory && x.Name == dto.ProductName && x.Description == dto.ProductDescription && x.IsActive == true) != null)
+                    return 0;
                 dbContext.Product.Add(product);
                 await dbContext.SaveChangesAsync();
                 foreach (var item in dto.Variants)
@@ -242,26 +240,10 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                     productVariant.ColourId = item.ColourId;
                     productVariant.ProductId = product.Id;
                     productVariant.SizeId = item.SizeId;
-                    if (item.Images != null)
-                    {
-                        var a = System.IO.Directory.GetCurrentDirectory();
-                        List<string> paths = new List<string>();
-                        foreach (var image in item.Images)
-                        {
-                            var path = Path.Combine(a, "Images\\ProductVariants\\", image.FileName);
-                            //productVariant.Path += string.Concat("|Images\\ProductVariants\\", image.FileName);
-                            paths.Add(string.Concat("Images\\ProductVariants\\", image.FileName));
-                            if (image.FileName.Length > 0)
-                            {
-                                using (FileStream filestream = System.IO.File.Create(path))
-                                {
-                                    image.CopyTo(filestream);
-                                    filestream.Flush();
-                                }
-                            }
-                        }
-                        productVariant.Path = String.Join("|", paths);
-                    }
+
+                    productVariant.Path = String.Join("|", item.Base64);
+                    if (dbContext.ProductVariant.FirstOrDefault(x => x.ColourId == item.ColourId && x.ProductId == item.ProductId && x.SizeId == item.SizeId && x.IsActive == true) != null)
+                        return 0;
                     dbContext.ProductVariant.Add(productVariant);
                     await dbContext.SaveChangesAsync();
                 }
@@ -275,27 +257,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
             }
         }
 
-        public async Task<int> Upsert(Product product)
-        {
-            if(product.Id>0)
-            {
-                var productToUpdate = await dbContext.Product.FirstAsync(e => e.Id == product.Id);
-
-                productToUpdate.UpdatedAt = DateTime.Now;
-                productToUpdate.Name = product.Name;
-                productToUpdate.Description = product.Description;
-                productToUpdate.CategoryId = product.CategoryId;
-            }
-            else
-            {
-                product.Name = product.Name;
-                product.Description = product.Description;
-                product.CategoryId = product.CategoryId;
-                dbContext.Product.Add(product);
-            }
-            await dbContext.SaveChangesAsync();
-            return product.Id;
-        }
+       
 
     }
 }

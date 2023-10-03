@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.Transactions;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace OnlineShoppingE_CommerceApplication.Service.Services;
 
@@ -64,4 +65,44 @@ public class ProductVariantService : IProductVariantService
             throw exception;
         }
     }
+    public async Task<List<ProductInfoDto>> GetProductVariants()
+    {
+        List<ProductInfoDto> list = new List<ProductInfoDto>();
+        var products = dbContext.Product.Include(c => c.Category).Where(p => p.IsActive  && p.Category.IsActive == true);
+        if (products == null)
+            return null;
+        foreach (var product in products)
+        {
+            ProductInfoDto productInfo = new ProductInfoDto();
+            productInfo.ColourVariants = new List<ColourVariant>();
+            productInfo.Id = product.Id;
+            productInfo.CategoryId = product.CategoryId;
+            productInfo.CategoryName = product.Category.Name;
+            productInfo.Name = product.Name;
+            productInfo.Description = product.Description;
+            var data = dbContext.ProductVariant.Include(x => x.Size).Include(x => x.Colour).Include(x => x.Stocks).Where(x => x.ProductId == product.Id && x.IsActive == true).GroupBy(x => x.ColourId).ToList();
+
+            foreach (var item in data)
+            {
+                productInfo.ColourVariants.Add(new ColourVariant()
+                {
+                    ColourId = item.Key,
+                    ColourName = item.FirstOrDefault()?.Colour.Name,
+                    Variants = item.Select(p => new Variant()
+                    {
+                        Path = p.Path?.Split('|').ToList(),
+                        ProductVariantId = p.Id,
+                        SizeDescription = p.Size?.Description,
+                        SizeId = p.SizeId,
+                        SizeName = p.Size?.Name,
+                        Stock = p.Stocks?.Where(x => x.IsActive == true).Sum(x => x?.StockToSale) ?? 0,
+                        Price = p.Stocks?.Where(x => x.IsActive == true).Max(x => x?.SellingPrice) ?? 0
+                    }).ToList()
+                });
+            }
+            list.Add(productInfo);
+        }
+        return list;
+    }
+    
 }

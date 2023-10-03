@@ -6,6 +6,7 @@ using OnlineShoppingE_CommerceApplication.Provider.Interface;
 using OnlineShoppingE_CommerceApplication.Provider.Entities;
 using OnlineShoppingE_CommerceApplication.Service.Services;
 using OnlineShoppingE_CommerceApplication.Provider.DTOs;
+using System.Collections.Generic;
 
 namespace OnlineShoppingE_CommerceApplication.Controllers;
 
@@ -100,6 +101,43 @@ public class ProductVariantController : ControllerBase
             return result;
         }
     }
+
+    [HttpGet]
+    public async Task<Response<List<ProductInfoDto>>> GetProductVariants()
+    {
+        try
+        {
+            var result = await productVariantService.GetProductVariants();
+            if (result != null)
+            {
+                return new Response<List<ProductInfoDto>>()
+                {
+                    Data = result,
+                    Message = "List of products fetched successfully",
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+            }
+            else
+            {
+                return new Response<List<ProductInfoDto>>()
+                {
+                    Message = "Product not found",
+                    Data = null,
+                    StatusCode = System.Net.HttpStatusCode.NoContent
+                };
+            }
+        }
+        catch (Exception e)
+        {
+            return new Response<List<ProductInfoDto>>()
+            {
+                Data = null,
+                Message = e.Message,
+                StatusCode = System.Net.HttpStatusCode.InternalServerError
+            };
+        }
+    }
+
 
 
 

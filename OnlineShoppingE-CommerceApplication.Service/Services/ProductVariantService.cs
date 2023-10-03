@@ -68,7 +68,7 @@ public class ProductVariantService : IProductVariantService
     public async Task<List<ProductInfoDto>> GetProductVariants()
     {
         List<ProductInfoDto> list = new List<ProductInfoDto>();
-        var products = dbContext.Product.Include(c => c.Category).Where(p => p.IsActive  && p.Category.IsActive == true);
+        var products = dbContext.Product.Include(c => c.Category).Where(p => p.IsActive  && p.Category.IsActive == true).ToList();
         if (products == null)
             return null;
         foreach (var product in products)

@@ -10,7 +10,7 @@ namespace OnlineShoppingE_CommerceApplication.Provider.Interface
     public interface IWishlistService
     {
         Task<int> Post(int productId,int customerId);
-        Task<WishlistDto> GetWishlist(int customerId,int userId);
+        Task<WishlistDto> GetWishlist(int customerId);
         Task<bool> Delete(int id,int customerId);
     }
 }

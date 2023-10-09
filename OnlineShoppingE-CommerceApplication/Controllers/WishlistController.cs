@@ -49,15 +49,15 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
             }
         }
 
-        [HttpGet("{customerId}")]
-        [Authorize]
-        public async Task<Provider.Entities.Response<WishlistDto>> GetWishlist(int customerId = 0)
+        [HttpGet]
+        [Authorize(Roles = "Customer")]
+        public async Task<Provider.Entities.Response<WishlistDto>> GetWishlist()
         {
             try
             {
-                int userId = Convert.ToInt32(HttpContext.User.Claims.First(c => c.Type == "Id").Value);
+                int customerId = Convert.ToInt32(HttpContext.User.Claims.First(c => c.Type == "Id").Value);
                
-                var result = await wishlistService.GetWishlist(customerId,userId);
+                var result = await wishlistService.GetWishlist(customerId);
                 if (result != null)
                     return new Provider.Entities.Response<WishlistDto>()
                     {

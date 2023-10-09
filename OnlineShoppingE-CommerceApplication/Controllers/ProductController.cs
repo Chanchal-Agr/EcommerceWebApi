@@ -205,7 +205,10 @@ public class ProductController : ControllerBase
     {
         try
         {
-            var result = await productService.GetById(id);
+
+            int? userId = Convert.ToInt32(HttpContext?.User?.Claims?.FirstOrDefault(c => c.Type == "Id")?.Value);
+           
+            var result = await productService.GetById(id, userId ?? 0);
             if (result != null)
             {
                 Response<ProductInfoDto> list = new Response<ProductInfoDto>()

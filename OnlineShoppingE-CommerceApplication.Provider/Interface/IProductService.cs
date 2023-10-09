@@ -14,7 +14,7 @@ namespace OnlineShoppingE_CommerceApplication.Provider.Interface
          Task<ProductDto> QueryProduct(ProductQuery productQuery,int userId);
          Task<bool> Update(Product product, int id);
          Task<bool> UpdateStatus(int id, bool status);
-         Task<ProductInfoDto> GetById(int id);
+         Task<ProductInfoDto> GetById(int id, int userId);
          Task<int> AddProductAndItsVariant(ProductAndVariantDto dto);
          
     }

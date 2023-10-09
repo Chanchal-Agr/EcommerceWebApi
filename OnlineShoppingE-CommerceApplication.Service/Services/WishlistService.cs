@@ -29,15 +29,10 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
             await dbContext.SaveChangesAsync();
             return wishlist.Id;
         }
-        public async Task<WishlistDto> GetWishlist(int customerId, int userId)
+        public async Task<WishlistDto> GetWishlist(int customerId)
         {
             
             WishlistDto wishlistDto = new WishlistDto();
-            User? data = null;
-            if (customerId == 0)
-                customerId = userId;
-            if (userId == customerId || (dbContext.User.FirstOrDefault(x => x.Id == userId && x.Role == Provider.Enums.Roles.Admin)) != null)
-            {
                 var wishlist = await dbContext.Wishlist.Include(x => x.Customer).Include(x => x.Product).Where(x => x.CustomerId == customerId).ToListAsync();
                 if (wishlist == null || wishlist.Count==0)
                     return null;
@@ -57,11 +52,6 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                     });
                 }
                 return wishlistDto;
-            }
-            else
-                throw new InvalidUserException();
-            
-           
         }
         public async Task<bool> Delete(int id,int customerId)
         {

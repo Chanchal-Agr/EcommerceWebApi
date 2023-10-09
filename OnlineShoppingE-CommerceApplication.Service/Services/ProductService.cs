@@ -134,7 +134,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
             return product;
         }
 
-        public async Task<ProductInfoDto> GetById(int id)
+        public async Task<ProductInfoDto> GetById(int id, int customerId)
         {
             ProductInfoDto productInfo = new ProductInfoDto();
             var product = dbContext.Product.Include(c => c.Category).FirstOrDefault(p => p.IsActive == true && p.Id == id && p.Category.IsActive == true);
@@ -142,12 +142,14 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                 return null;
             else
             {
+                var wishlist = dbContext.Wishlist.FirstOrDefault(x => x.CustomerId == customerId && x.ProductId ==id);
                 productInfo.ColourVariants = new List<ColourVariant>();
                 productInfo.Id = product.Id;
                 productInfo.CategoryId = product.CategoryId;
                 productInfo.CategoryName = product.Category.Name;
                 productInfo.Name = product.Name;
                 productInfo.Description = product.Description;
+                productInfo.IsWishlist = (customerId != 0 && wishlist != null) ? true : false;
                 var data = dbContext.ProductVariant.Include(x => x.Size).Include(x => x.Colour).Include(x => x.Stocks).Where(x => x.ProductId == id && x.IsActive == true).GroupBy(x => x.ColourId).ToList();
 
                 foreach (var item in data)

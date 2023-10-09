@@ -14,6 +14,7 @@ namespace OnlineShoppingE_CommerceApplication.Provider.DTOs
         public string Name { get; set; }
         public string Description { get; set; }
         public List<ColourVariant> ColourVariants { get; set; }
+        public bool IsWishlist { get; set; }
         
     }
     public class ColourVariant

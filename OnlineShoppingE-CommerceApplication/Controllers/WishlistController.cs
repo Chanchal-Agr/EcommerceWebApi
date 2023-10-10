@@ -55,9 +55,9 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
         {
             try
             {
-                int customerId = Convert.ToInt32(HttpContext.User.Claims.First(c => c.Type == "Id").Value);
-               
-                var result = await wishlistService.GetWishlist(customerId);
+                int? customerId = Convert.ToInt32(HttpContext?.User?.Claims?.FirstOrDefault(c => c.Type == "Id")?.Value);
+
+                var result = await wishlistService.GetWishlist(customerId??0);
                 if (result != null)
                     return new Provider.Entities.Response<WishlistDto>()
                     {

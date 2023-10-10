@@ -37,7 +37,7 @@ public class ProductVariantService : IProductVariantService
             productVariant.SizeId = item.SizeId;
 
             productVariant.Path = String.Join("|", item.Base64);
-            if (dbContext.ProductVariant.FirstOrDefault(x => x.ColourId == item.ColourId && x.ProductId == item.ProductId && x.SizeId == item.SizeId && x.IsActive==true) != null)
+            if (dbContext.ProductVariant.FirstOrDefault(x => x.ColourId == item.ColourId && x.ProductId == item.ProductId && x.SizeId == item.SizeId && x.IsActive == true) != null)
                 return false;
             dbContext.ProductVariant.Add(productVariant);
             dbContext.SaveChanges();
@@ -68,7 +68,7 @@ public class ProductVariantService : IProductVariantService
     public async Task<List<ProductInfoDto>> GetProductVariants()
     {
         List<ProductInfoDto> list = new List<ProductInfoDto>();
-        var products = dbContext.Product.Include(c => c.Category).Where(p => p.IsActive  && p.Category.IsActive == true).ToList();
+        var products = dbContext.Product.Include(c => c.Category).Where(p => p.IsActive && p.Category.IsActive == true).ToList();
         if (products == null)
             return null;
         foreach (var product in products)
@@ -104,5 +104,48 @@ public class ProductVariantService : IProductVariantService
         }
         return list;
     }
-    
+
+    public async Task<ProductVariantResponseDto> GetProductVariants(int categoryId, int customerId)
+    {
+        ProductVariantResponseDto response = new ProductVariantResponseDto();
+        List<ProductResponseDto> productList = new List<ProductResponseDto>();
+
+        var products = dbContext.Product.Include(c => c.Category).Where(p => p.IsActive && p.Category.IsActive && p.CategoryId == categoryId).ToList();
+
+        response.CategoryId = categoryId;
+        response.CategoryName = products.FirstOrDefault().Category.Name;
+        foreach (var product in products)
+        {
+            var wishlist = dbContext.Wishlist.FirstOrDefault(x => x.CustomerId == customerId && x.ProductId == product.Id);
+            var variantList = dbContext.ProductVariant.Include(x => x.Size).Include(x => x.Colour).Include(x => x.Stocks).Where(x => x.ProductId == product.Id && x.IsActive).ToList();
+
+            List<VariantDto> variants = new List<VariantDto>();
+            variants = variantList.Select(p => new VariantDto()
+            {
+                Id = p.Id,
+                Path = p.Path?.Split('|').ToList(),
+                SizeId = p.SizeId,
+                SizeName = p.Size?.Name,
+                ColourId = p.ColourId,
+                ColourName = p.Colour?.Name,
+                Stock = p.Stocks?.Where(x => x.IsActive).Sum(x => x?.StockToSale) ?? 0,
+                Price = p.Stocks?.Where(x => x.IsActive).Max(x => x?.SellingPrice) ?? 0
+            }).ToList();
+
+            productList.Add(new ProductResponseDto()
+            {
+                ProductId = product.Id,
+                ProductName = product.Name,
+                ProductDescription = product?.Description,
+                IsWishlist = wishlist != null ? true : false,
+                Variants = variants
+            });
+            
+        }
+        response.Products = productList;
+
+        return response;
+
+    }
+
 }

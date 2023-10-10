@@ -102,15 +102,52 @@ public class ProductVariantController : ControllerBase
         }
     }
 
-    [HttpGet]
-    public async Task<Response<List<ProductInfoDto>>> GetProductVariants()
+    //[HttpGet]
+    //public async Task<Response<List<ProductInfoDto>>> GetProductVariants()
+    //{
+    //    try
+    //    {
+    //        var result = await productVariantService.GetProductVariants();
+    //        if (result != null)
+    //        {
+    //            return new Response<List<ProductInfoDto>>()
+    //            {
+    //                Data = result,
+    //                Message = "List of products fetched successfully",
+    //                StatusCode = System.Net.HttpStatusCode.OK
+    //            };
+    //        }
+    //        else
+    //        {
+    //            return new Response<List<ProductInfoDto>>()
+    //            {
+    //                Message = "Product not found",
+    //                Data = null,
+    //                StatusCode = System.Net.HttpStatusCode.NoContent
+    //            };
+    //        }
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        return new Response<List<ProductInfoDto>>()
+    //        {
+    //            Data = null,
+    //            Message = e.Message,
+    //            StatusCode = System.Net.HttpStatusCode.InternalServerError
+    //        };
+    //    }
+    //}
+
+    [HttpGet("{categoryId}")]
+    public async Task<Response<ProductVariantResponseDto>> GetProductVariants(int categoryId)
     {
         try
         {
-            var result = await productVariantService.GetProductVariants();
+            int? customerId = Convert.ToInt32(HttpContext?.User?.Claims?.FirstOrDefault(c => c.Type == "Id")?.Value);
+            var result = await productVariantService.GetProductVariants(categoryId, customerId ?? 0);
             if (result != null)
             {
-                return new Response<List<ProductInfoDto>>()
+                return new Response<ProductVariantResponseDto>()
                 {
                     Data = result,
                     Message = "List of products fetched successfully",
@@ -119,17 +156,17 @@ public class ProductVariantController : ControllerBase
             }
             else
             {
-                return new Response<List<ProductInfoDto>>()
+                return new Response<ProductVariantResponseDto>()
                 {
                     Message = "Product not found",
                     Data = null,
-                    StatusCode = System.Net.HttpStatusCode.NoContent
+                    StatusCode = System.Net.HttpStatusCode.NotFound
                 };
             }
         }
         catch (Exception e)
         {
-            return new Response<List<ProductInfoDto>>()
+            return new Response<ProductVariantResponseDto>()
             {
                 Data = null,
                 Message = e.Message,
@@ -137,8 +174,5 @@ public class ProductVariantController : ControllerBase
             };
         }
     }
-
-
-
 
 }

@@ -19,23 +19,35 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
 
         public async Task<int> Post(Category category)
         {
-           
-            if (dbContext.Category.FirstOrDefault(x => x.Name == category.Name) != null)
+
+            if (dbContext.Category.FirstOrDefault(x => x.Name == category.Name && x.IsActive) != null)
                 return 0;
-            category.Name = category.Name;
-            dbContext.Category.Add(category);
-            await dbContext.SaveChangesAsync();
-            return category.Id;
+            else if (dbContext.Category.FirstOrDefault(x => x.Name == category.Name && !x.IsActive) != null)
+            {
+                var categoryExists = dbContext.Category.FirstOrDefault(x => x.Name == category.Name && !x.IsActive);
+                categoryExists.UpdatedAt = DateTime.Now;
+                categoryExists.IsActive = true;
+                await dbContext.SaveChangesAsync();
+                return categoryExists.Id;
+
+            }
+            else
+            {
+                category.Name = category.Name;
+                dbContext.Category.Add(category);
+                await dbContext.SaveChangesAsync();
+                return category.Id;
+            }
 
         }
         public async Task<CategoryDto> GetAll(QueryBase query)
         {
             CategoryDto categoryDto = new CategoryDto();
-            var data = dbContext.Category.Where(p => p.IsActive==true && (!query.Search.IsNullOrEmpty() ? p.Name.Contains(query.Search) : true)).AsQueryable();
+            var data = dbContext.Category.Where(p => p.IsActive == true && (!query.Search.IsNullOrEmpty() ? p.Name.Contains(query.Search) : true)).AsQueryable();
 
             if (query.OrderBy != null)
                 data = QueryableExtensions.OrderBy(data, query.OrderBy);
-            
+
             var count = data.Count();
             List<CategoryDetailDto> categories = new List<CategoryDetailDto>();
             if (query.IsPagination)
@@ -107,7 +119,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
         }
         public async Task<CategoryDetailDto> GetById(int id)
         {
-            Category? category = await dbContext.Category.FirstOrDefaultAsync(c => c.Id == id && c.IsActive==true);
+            Category? category = await dbContext.Category.FirstOrDefaultAsync(c => c.Id == id && c.IsActive == true);
             if (category != null)
                 return new CategoryDetailDto
                 {
@@ -115,25 +127,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                     Name = category.Name,
                 };
             return null;
-            
-        }
 
-        public async Task<int> Upsert(Category category)
-        {
-            if(category.Id>0)  //update
-            {
-                  var categoryToUpdate = await dbContext.Category.FirstAsync(e => e.Id == category.Id);
-
-                    categoryToUpdate.UpdatedAt = DateTime.Now;
-                    categoryToUpdate.Name = category.Name;
-            }
-            else  //insert
-            {
-                category.Name = category.Name;
-                dbContext.Category.Add(category);
-            }
-            await dbContext.SaveChangesAsync();
-            return category.Id;
         }
     }
 }

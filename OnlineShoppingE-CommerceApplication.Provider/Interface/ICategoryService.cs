@@ -15,7 +15,7 @@ namespace OnlineShoppingE_CommerceApplication.Provider.Interface
          Task<bool> Update(Category category, int id);
          Task<bool> UpdateStatus(int id, bool status);
          Task<CategoryDetailDto> GetById (int id);
-         Task<int> Upsert(Category category);
+         
 
 
     }

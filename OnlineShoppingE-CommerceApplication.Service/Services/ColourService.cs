@@ -39,25 +39,29 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
             //        }
             //    }
             //}
-            Colour color = new Colour();
+           
             if (dbContext.Colour.FirstOrDefault(x => x.Name == colour.Name && x.IsActive) != null)
                 return 0;
-            else if(dbContext.Colour.FirstOrDefault(x => x.Name == colour.Name && !x.IsActive) != null)
+            else if (dbContext.Colour.FirstOrDefault(x => x.Name == colour.Name && !x.IsActive) != null)
             {
-                var item = dbContext.Colour.FirstOrDefault(x => x.Name == colour.Name && !x.IsActive);
-                item.UpdatedAt = DateTime.Now;
-                item.IsActive= true;
-            }
-            else { 
-            color.Name = colour.Name;
-            color.IsActive = true;
-            color.Path = colour.Path;
-            dbContext.Colour.Add(color);
-            
-            }
-            await dbContext.SaveChangesAsync();
-            return color.Id;
+                var colorExists = dbContext.Colour.FirstOrDefault(x => x.Name == colour.Name && !x.IsActive);
+                colorExists.UpdatedAt = DateTime.Now;
+                colorExists.IsActive = true;
+                colorExists.Path = colour.Path;
+                await dbContext.SaveChangesAsync();
+                return colorExists.Id;
 
+            }
+            else
+            {
+                Colour color = new Colour();
+                color.Name = colour.Name;
+                color.IsActive = true;
+                color.Path = colour.Path;
+                dbContext.Colour.Add(color);
+                await dbContext.SaveChangesAsync();
+                return color.Id;
+            }
         }
         public async Task<ColourResponseDto> GetAll(QueryBase query)
         {
@@ -99,7 +103,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                     //    colourDetails.IconPath = string.Concat(path, colour.Path);
                     colourDetails.IconPath = colour.Path;
                     colourList.Add(colourDetails);
-                    
+
                 }
             }
             colourDto.ColourDetails = colourList;

@@ -17,11 +17,25 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
 
         public async Task<int> Post(Provider.Entities.Size size)
         {
-            size.Name = size.Name;
-            size.Description = size.Description;
-            dbContext.Size.Add(size);
-            await dbContext.SaveChangesAsync();
-            return size.Id;
+            if (dbContext.Size.FirstOrDefault(x => x.Name == size.Name && x.IsActive) != null)
+                return 0;
+            else if (dbContext.Size.FirstOrDefault(x => x.Name == size.Name && !x.IsActive) != null)
+            {
+                var sizeExists = dbContext.Size.FirstOrDefault(x => x.Name == size.Name && !x.IsActive);
+                sizeExists.UpdatedAt = DateTime.Now;
+                sizeExists.IsActive = true;
+                sizeExists.Description = size.Description;
+                await dbContext.SaveChangesAsync();
+                return sizeExists.Id;
+            }
+            else
+            {
+                size.Name = size.Name;
+                size.Description = size.Description;
+                dbContext.Size.Add(size);
+                await dbContext.SaveChangesAsync();
+                return size.Id;
+            }
 
         }
         public async Task<SizeDto> GetAll(QueryBase query)

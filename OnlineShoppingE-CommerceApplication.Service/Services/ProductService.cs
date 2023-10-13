@@ -19,16 +19,30 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
             this.dbContext = dbContext;
         }
 
-        public async Task<int> AddProduct(Product product)
+        public async Task<int> AddProduct(Product productDto)
         {
-            product.Name = product.Name;
-            product.Description = product.Description;
-            product.CategoryId = product.CategoryId;
-            if (dbContext.Product.FirstOrDefault(x => x.Name == product.Name && x.CategoryId == product.CategoryId && x.IsActive == true) != null)
+
+            if (dbContext.Product.FirstOrDefault(x => x.Name == productDto.Name && x.CategoryId == productDto.CategoryId && x.IsActive) != null)
                 return 0;
-            dbContext.Product.Add(product);
-            await dbContext.SaveChangesAsync();
-            return product.Id;
+            else if (dbContext.Product.FirstOrDefault(x => x.Name == productDto.Name && x.CategoryId == productDto.CategoryId && !x.IsActive) != null)
+            {
+                var productExists = dbContext.Product.FirstOrDefault(x => x.Name == productDto.Name && x.CategoryId == productDto.CategoryId && !x.IsActive);
+                productExists.UpdatedAt = DateTime.Now;
+                productExists.IsActive = true;
+                productExists.Description = productDto.Description;
+                await dbContext.SaveChangesAsync();
+                return productExists.Id;
+            }
+            else
+            {
+                Product product = new Product();
+                product.Name = productDto.Name;
+                product.CategoryId = productDto.CategoryId;
+                product.Description = productDto.Description;
+                dbContext.Product.Add(product);
+                await dbContext.SaveChangesAsync();
+                return product.Id;
+            }
 
         }
         // await dbContext.Product.Where(e => e.Id == id).ExecuteUpdateAsync(s => s.SetProperty(status => status.IsActive, false));
@@ -142,7 +156,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                 return null;
             else
             {
-                var wishlist = dbContext.Wishlist.FirstOrDefault(x => x.CustomerId == customerId && x.ProductId ==id);
+                var wishlist = dbContext.Wishlist.FirstOrDefault(x => x.CustomerId == customerId && x.ProductId == id);
                 productInfo.ColourVariants = new List<ColourVariant>();
                 productInfo.Id = product.Id;
                 productInfo.CategoryId = product.CategoryId;
@@ -259,7 +273,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
             }
         }
 
-       
+
 
     }
 }

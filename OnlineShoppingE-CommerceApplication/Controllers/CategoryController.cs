@@ -237,41 +237,7 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
-        [HttpPost]
-        public async Task<Response<int>> Upsert(Category category)
-        {
-            try
-            {
-                int value = await categoryService.Upsert(category);
-                if (value > 0)
-                    return new Response<int>()
-                    {
-                        Message = "Executed successfully",
-                        Data = value,
-                        StatusCode = System.Net.HttpStatusCode.OK
-                    };
-
-                else
-                    return new Response<int>()
-                    {
-                        Message = "Operation failed",
-                        Data = value,
-                        StatusCode = System.Net.HttpStatusCode.BadRequest
-                    };
-
-            }
-            catch (Exception e)
-            {
-                return new Response<int>()
-                {
-                    Message = e.Message,
-                    Data = 0,
-                    StatusCode = System.Net.HttpStatusCode.InternalServerError
-                };
-
-            }
-        }
+       
 
     }
 }

@@ -137,7 +137,7 @@ public class ProductVariantService : IProductVariantService
                 ProductId = product.Id,
                 ProductName = product.Name,
                 ProductDescription = product?.Description,
-                IsWishlist = wishlist != null ? true : false,
+                WishlistId = wishlist!=null?wishlist.Id : 0,
                 Variants = variants
             });
             

@@ -161,28 +161,28 @@ public class ProductController : ControllerBase
     {
         try
         {
-            int? userId = Convert.ToInt32(HttpContext?.User?.Claims?.FirstOrDefault(c => c.Type == "Id")?.Value);
-            var result = await productService.QueryProduct(productQuery,userId??0);
+            int? customerId = Convert.ToInt32(HttpContext?.User?.Claims?.FirstOrDefault(c => c.Type == "Id")?.Value);
+            var result = await productService.QueryProduct(productQuery, customerId ?? 0);
             if (result != null)
             {
-                Response<ProductDto> list = new Response<ProductDto>()
+                return new Response<ProductDto>()
                 {
                     Data = result,
                     Message = "List of products fetched successfully",
                     StatusCode = System.Net.HttpStatusCode.OK
                 };
-                return list;
+                
             }
             else
             {
-                Response<ProductDto> list = new Response<ProductDto>()
+                return new Response<ProductDto>()
                 {
                     Data = null,
                     Message = "No product data found",
                     StatusCode = System.Net.HttpStatusCode.NoContent
 
                 };
-                return list;
+                
             }
         }
         catch (Exception e)

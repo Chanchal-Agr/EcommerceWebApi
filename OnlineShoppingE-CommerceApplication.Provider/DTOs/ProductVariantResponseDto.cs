@@ -17,7 +17,7 @@ namespace OnlineShoppingE_CommerceApplication.Provider.DTOs
         public int ProductId { get; set; }
         public string ProductName { get; set; }
         public string ProductDescription { get; set; }
-        public bool IsWishlist { get; set; } = false;
+        public int WishlistId { get; set; } = 0;
         public List<VariantDto> Variants { get; set; }
     }
     public class VariantDto

@@ -9,7 +9,7 @@ namespace OnlineShoppingE_CommerceApplication.Provider.DTOs
     public class ProductDetailDto
     {   
         public int Id { get; set; }
-        public bool IsWishlist { get;set; }
+        public int WishlistId { get;set; }
         public string Category { get; set; }
         public string Name { get; set; }
         public string? Description { get; set; }

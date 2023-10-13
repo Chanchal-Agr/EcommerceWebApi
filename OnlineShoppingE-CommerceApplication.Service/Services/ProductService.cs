@@ -88,16 +88,10 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                 throw exception;
             }
         }
-        public async Task<ProductDto> QueryProduct(ProductQuery productQuery, int userId)
+        public async Task<ProductDto> QueryProduct(ProductQuery productQuery, int customerId)
         {
             ProductDto product = new ProductDto();
             var data = dbContext.VProduct.Where(p => p.CategoryId > 0 && (productQuery.CategoryId > 0 ? p.CategoryId == productQuery.CategoryId : true) && (!productQuery.Search.IsNullOrEmpty() ? (p.Description.Contains(productQuery.Search) || p.Name.Contains(productQuery.Search) || p.CategoryName.Contains(productQuery.Search)) : true)).AsQueryable();
-
-
-            if (userId != 0 && (dbContext.User.FirstOrDefault(x => x.Id == userId && x.Role == Provider.Enums.Roles.Admin)) == null)
-                productQuery.CustomerId = userId;
-            if (userId == 0)
-                productQuery.CustomerId = 0;
 
             if (productQuery.OrderBy != null)
                 data = QueryableExtensions.OrderBy(data, productQuery.OrderBy);
@@ -112,7 +106,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
 
                 foreach (var item in items)
                 {
-                    var wishlist = dbContext.Wishlist.FirstOrDefault(x => x.CustomerId == productQuery.CustomerId && x.ProductId == item.ProductId);
+                    var wishlist = dbContext.Wishlist.FirstOrDefault(x => x.CustomerId == customerId && x.ProductId == item.ProductId);
                     product.ProductDetails.Add(new ProductDetailDto
                     {
                         Id = item.ProductId,
@@ -122,7 +116,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                         Price = item.SellingPrice,
                         Path = item.FilePath,
                         TotalVariant = item.VariantCount,
-                        IsWishlist = (productQuery.CustomerId != 0 && wishlist != null) ? true : false
+                        WishlistId = wishlist != null ? wishlist.Id : 0
                     });
                 }
             }
@@ -131,7 +125,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                 var data2 = data.ToList();
                 foreach (var item in data2)
                 {
-                    var wishlist = dbContext.Wishlist.FirstOrDefault(x => x.CustomerId == productQuery.CustomerId && x.ProductId == item.ProductId);
+                    var wishlist = dbContext.Wishlist.FirstOrDefault(x => x.CustomerId == customerId && x.ProductId == item.ProductId);
                     product.ProductDetails.Add(new ProductDetailDto
                     {
                         Id = item.ProductId,
@@ -141,7 +135,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                         Price = item.SellingPrice,
                         Path = item.FilePath,
                         TotalVariant = item.VariantCount,
-                        IsWishlist = (productQuery.CustomerId != 0 && wishlist != null) ? true : false
+                        WishlistId = wishlist != null ? wishlist.Id : 0
                     });
                 }
             }
@@ -163,7 +157,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                 productInfo.CategoryName = product.Category.Name;
                 productInfo.Name = product.Name;
                 productInfo.Description = product.Description;
-                productInfo.IsWishlist = (customerId != 0 && wishlist != null) ? true : false;
+                productInfo.WishlistId = wishlist != null ? wishlist.Id : 0;
                 var data = dbContext.ProductVariant.Include(x => x.Size).Include(x => x.Colour).Include(x => x.Stocks).Where(x => x.ProductId == id && x.IsActive == true).GroupBy(x => x.ColourId).ToList();
 
                 foreach (var item in data)

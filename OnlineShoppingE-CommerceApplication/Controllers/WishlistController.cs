@@ -27,14 +27,25 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
                 int customerId = Convert.ToInt32(HttpContext.User.Claims.First(c => c.Type == "Id").Value);
 
                 int id = await wishlistService.Post(productId, customerId);
-
-                Provider.Entities.Response<int> result = new Provider.Entities.Response<int>()
+                if (id > 0)
                 {
-                    Data = id,
-                    Message = "Product successfully added to the wishlist",
-                    StatusCode = System.Net.HttpStatusCode.OK
-                };
-                return result;
+                    return new Provider.Entities.Response<int>()
+                    {
+                        Data = id,
+                        Message = "Product successfully added to the wishlist",
+                        StatusCode = System.Net.HttpStatusCode.OK
+                    };
+                }
+                else
+                {
+                    return new Provider.Entities.Response<int>()
+                    {
+                        Data = id,
+                        Message = "Product already exists in the wishlist",
+                        StatusCode = System.Net.HttpStatusCode.OK
+                    };
+                }
+                
 
             }
             catch (Exception e)

@@ -22,12 +22,18 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
         }
         public async Task<int> Post(int productId,int customerId)
         {
-            Wishlist wishlist = new Wishlist();
-            wishlist.ProductId = productId;
-            wishlist.CustomerId= customerId;
-            dbContext.Wishlist.Add(wishlist);
-            await dbContext.SaveChangesAsync();
-            return wishlist.Id;
+            if (dbContext.Wishlist.FirstOrDefault(x => x.CustomerId == customerId && x.ProductId == productId) != null)
+                return 0;
+            else
+            {
+                Wishlist wishlist = new Wishlist();
+                wishlist.ProductId = productId;
+                wishlist.CustomerId = customerId;
+                dbContext.Wishlist.Add(wishlist);
+
+                await dbContext.SaveChangesAsync();
+                return wishlist.Id;
+            }
         }
         public async Task<WishlistDto> GetWishlist(int customerId)
         {

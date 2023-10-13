@@ -30,18 +30,30 @@ public class ProductVariantService : IProductVariantService
 
         foreach (var item in variants)
         {
-            ProductVariant productVariant = new ProductVariant();
-            productVariant.IsActive = true;
-            productVariant.ColourId = item.ColourId;
-            productVariant.ProductId = item.ProductId;
-            productVariant.SizeId = item.SizeId;
-
-            productVariant.Path = String.Join("|", item.Base64);
-            if (dbContext.ProductVariant.FirstOrDefault(x => x.ColourId == item.ColourId && x.ProductId == item.ProductId && x.SizeId == item.SizeId && x.IsActive == true) != null)
-                return false;
-            dbContext.ProductVariant.Add(productVariant);
-            dbContext.SaveChanges();
-
+            var variantExists = dbContext.ProductVariant.FirstOrDefault(x => x.ColourId == item.ColourId && x.ProductId == item.ProductId && x.SizeId == item.SizeId);
+            if (variantExists != null)
+            {
+                if (variantExists.IsActive)
+                    return false;
+                else
+                {
+                    variantExists.IsActive = true;
+                    variantExists.Path = String.Join("|", item.Base64);
+                    variantExists.UpdatedAt = DateTime.Now;
+                    dbContext.SaveChanges();
+                }
+            }
+            else
+            {
+                ProductVariant productVariant = new ProductVariant();
+                productVariant.IsActive = true;
+                productVariant.ColourId = item.ColourId;
+                productVariant.ProductId = item.ProductId;
+                productVariant.SizeId = item.SizeId;
+                productVariant.Path = String.Join("|", item.Base64);
+                dbContext.ProductVariant.Add(productVariant);
+                dbContext.SaveChanges();
+            }
         }
         return true;
     }
@@ -137,14 +149,39 @@ public class ProductVariantService : IProductVariantService
                 ProductId = product.Id,
                 ProductName = product.Name,
                 ProductDescription = product?.Description,
-                WishlistId = wishlist!=null?wishlist.Id : 0,
+                WishlistId = wishlist != null ? wishlist.Id : 0,
                 Variants = variants
             });
-            
+
         }
         response.Products = productList;
 
         return response;
+
+    }
+    public async Task<bool> UpdateProductVariant(ProductVariantRequestDto variant, int id)
+    {
+        try
+        {
+            var variantToUpdate = await dbContext.ProductVariant.FirstAsync(e => e.Id == id);
+            var data = dbContext.ProductVariant.FirstOrDefault(x => x.ProductId == variantToUpdate.ProductId && x.ColourId == variant.ColourId && x.SizeId == variant.SizeId);
+            if (data != null && data.Id != id)
+                return false;
+            else
+            {
+                variantToUpdate.UpdatedAt = DateTime.Now;
+                variantToUpdate.SizeId = variant.SizeId;
+                variantToUpdate.ColourId = variant.ColourId;
+                variantToUpdate.Path = String.Join("|", variant.Base64);
+
+                await dbContext.SaveChangesAsync();
+                return true;
+            }
+        }
+        catch (DbUpdateException exception)
+        {
+            throw exception;
+        }
 
     }
 

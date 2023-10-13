@@ -50,7 +50,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
         {
             try
             {
-                if (dbContext.Product.FirstOrDefault(x => x.Name == product.Name && x.CategoryId == product.CategoryId && x.Description == product.Description && x.IsActive == true) != null)
+                if (dbContext.Product.FirstOrDefault(x => x.Name == product.Name && x.CategoryId == product.CategoryId && x.Description == product.Description && x.IsActive) != null)
                     return false;
                 var productToUpdate = await dbContext.Product.FirstAsync(e => e.Id == id);
 

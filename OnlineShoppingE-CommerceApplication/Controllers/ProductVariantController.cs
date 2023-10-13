@@ -174,5 +174,62 @@ public class ProductVariantController : ControllerBase
             };
         }
     }
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id}")]
+    public async Task<Response<bool>> UpdateProductVariant(ProductVariantRequestDto variant, int id)
+    {
+        try
+        {
+            if (!variant.Id.Equals(id))
+            {
+                Response<bool> result = new Response<bool>()
+                {
+                    Message = "The id does not match with the product to be updated",
+                    Data = false,
+                    StatusCode = System.Net.HttpStatusCode.BadRequest
+                };
+                return result;
+            }
+            else
+            {
+
+                bool ans = await productVariantService.UpdateProductVariant(variant, id);
+                if (ans)
+                {
+                    Response<bool> result = new Response<bool>()
+                    {
+                        Message = "Variant updated",
+                        Data = true,
+                        StatusCode = System.Net.HttpStatusCode.OK
+                    };
+                    return result;
+                }
+                else
+                {
+                    Response<bool> result = new Response<bool>()
+                    {
+                        Message = "Variant cannot updated as already exists ",
+                        Data = false,
+                        StatusCode = System.Net.HttpStatusCode.BadRequest
+                    };
+                    return result;
+                }
+
+            }
+        }
+
+        catch (Exception e)
+        {
+            Response<bool> result = new Response<bool>()
+            {
+                Message = e.Message,
+                Data = false,
+                StatusCode = System.Net.HttpStatusCode.InternalServerError
+            };
+            return result;
+        }
+
+    }
+
 
 }

@@ -87,7 +87,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
             try
             {
                 var categoryToUpdate = await dbContext.Category.FirstAsync(e => e.Id == id);
-                if (dbContext.Category.FirstOrDefault(x => x.Name == category.Name) != null)
+                if (dbContext.Category.FirstOrDefault(x => x.Name == category.Name && x.Id!=id) != null)
                     return false;
                 categoryToUpdate.UpdatedAt = DateTime.Now;
                 categoryToUpdate.Name = category.Name;

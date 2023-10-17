@@ -111,14 +111,13 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
             return colourDto;
         }
 
-        public async Task<bool> Update(Colour colour, int id)
+        public async Task<bool> Update(ColourRequestDto colour, int id)
         {
             try
             {
-
                 var colourToUpdate = await dbContext.Colour.FirstAsync(e => e.Id == id && e.IsActive == true);
                 colourToUpdate.UpdatedAt = DateTime.Now;
-                if (dbContext.Colour.FirstOrDefault(x => x.Name == colour.Name && x.Id!=id) != null)
+                if (dbContext.Colour.FirstOrDefault(x => x.Name == colour.Name && x.IsActive && x.Id!=id) != null)
                     return false;
                 colourToUpdate.Name = colour.Name;
                 colourToUpdate.Path = colour.Path;

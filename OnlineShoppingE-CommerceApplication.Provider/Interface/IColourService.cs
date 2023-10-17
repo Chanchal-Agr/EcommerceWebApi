@@ -9,7 +9,7 @@ namespace OnlineShoppingE_CommerceApplication.Provider.Interface
     {
          Task<int> Post(ColourDto colour);
          Task<ColourResponseDto> GetAll(QueryBase query);
-         Task<bool> Update(Colour colour, int id);
+         Task<bool> Update(ColourRequestDto colour, int id);
          Task<bool> UpdateStatus(int id, bool status);
          Task<ColourDetailDto> GetById(int id);
     }

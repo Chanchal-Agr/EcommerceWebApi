@@ -107,7 +107,7 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<Response<bool>> Update([FromForm] Colour colour, int id)
+        public async Task<Response<bool>> Update(ColourRequestDto colour, int id)
         {
             try
             {

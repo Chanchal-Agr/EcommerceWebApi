@@ -27,13 +27,13 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                 var categoryExists = dbContext.Category.FirstOrDefault(x => x.Name == category.Name && !x.IsActive);
                 categoryExists.UpdatedAt = DateTime.Now;
                 categoryExists.IsActive = true;
+                categoryExists.Image = category.Image;
                 await dbContext.SaveChangesAsync();
                 return categoryExists.Id;
 
             }
             else
             {
-                category.Name = category.Name;
                 dbContext.Category.Add(category);
                 await dbContext.SaveChangesAsync();
                 return category.Id;
@@ -62,6 +62,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                     CategoryDetailDto categoryDetails = new CategoryDetailDto();
                     categoryDetails.Id = item.Id;
                     categoryDetails.Name = item.Name;
+                    categoryDetails.Image = item.Image;
                     categories.Add(categoryDetails);
                 }
             }
@@ -72,6 +73,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                     CategoryDetailDto categoryDetails = new CategoryDetailDto();
                     categoryDetails.Id = item.Id;
                     categoryDetails.Name = item.Name;
+                    categoryDetails.Image = item.Image;
                     categories.Add(categoryDetails);
                 }
             }
@@ -89,6 +91,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                     return false;
                 categoryToUpdate.UpdatedAt = DateTime.Now;
                 categoryToUpdate.Name = category.Name;
+                categoryToUpdate.Image = category.Image;
                 await dbContext.SaveChangesAsync();
                 return true;
             }
@@ -125,6 +128,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                 {
                     Id = id,
                     Name = category.Name,
+                    Image=category.Image 
                 };
             return null;
 

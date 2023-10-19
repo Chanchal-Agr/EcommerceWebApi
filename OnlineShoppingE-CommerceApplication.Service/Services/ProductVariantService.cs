@@ -163,7 +163,7 @@ public class ProductVariantService : IProductVariantService
     {
         try
         {
-            var variantToUpdate = await dbContext.ProductVariant.FirstAsync(e => e.Id == id);
+            var variantToUpdate = await dbContext.ProductVariant.FirstOrDefaultAsync(e => e.Id == id);
             var data = dbContext.ProductVariant.FirstOrDefault(x => x.ProductId == variantToUpdate.ProductId && x.ColourId == variant.ColourId && x.SizeId == variant.SizeId);
             if (data != null && data.Id != id)
                 return false;

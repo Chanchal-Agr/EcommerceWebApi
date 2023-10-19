@@ -47,7 +47,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
         public async Task<CartInfoDto> GetDetails(int customerId)
         {
             CartInfoDto cartInfo = new CartInfoDto();
-            var cart =  dbContext.Cart.Include(p=>p.ProductVariant).ThenInclude(p=>p.Product).Where(s => s.CustomerId == customerId);
+            var cart =  await dbContext.Cart.Include(p=>p.ProductVariant).ThenInclude(p=>p.Product).Where(s => s.CustomerId == customerId).ToListAsync();
             if (cart.IsNullOrEmpty())
             {
                 return null;
@@ -73,6 +73,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                 cartInfo.TotalItems = cartInfo.CartDetails.Count();
                 foreach (var item in cartInfo.CartDetails)
                     cartInfo.TotalPrice+= item.Price * item.Quantity;
+                //Thread.Sleep(10000);
                 return cartInfo;
 
             }

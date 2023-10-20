@@ -185,4 +185,25 @@ public class ProductVariantService : IProductVariantService
 
     }
 
+    public async Task<VariantResponseDto> GetVariantById(int id)
+    {
+        var variant = await dbContext.ProductVariant.Include(x => x.Size).Include(x => x.Colour).Include(x => x.Product).Include(x=>x.Stocks).FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
+        if (variant is not null)
+        {
+            VariantResponseDto variantdto = new VariantResponseDto()
+            {
+                Id = id,
+                ColourId = variant.ColourId,
+                SizeId = variant.SizeId,
+                ColourName = variant.Colour.Name,
+                SizeName = variant.Size.Name,
+                ProductName = variant.Product.Name,
+                Path = variant.Path?.Split('|').ToList(),
+                Price = variant.Stocks?.Where(x => x.IsActive).Max(x => x?.SellingPrice) ?? 0
+            };
+            return variantdto;
+        }
+        return null;
+    }
+
 }

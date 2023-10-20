@@ -36,7 +36,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
             var token = new JwtSecurityToken(config["Jwt:Issuer"],
                 config["Jwt:Audience"],
                 claims,
-                expires: DateTime.Now.AddMinutes(60),
+                expires: DateTime.Now.AddYears(10),
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

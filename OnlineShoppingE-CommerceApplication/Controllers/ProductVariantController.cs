@@ -102,41 +102,41 @@ public class ProductVariantController : ControllerBase
         }
     }
 
-    //[HttpGet]
-    //public async Task<Response<List<ProductInfoDto>>> GetProductVariants()
-    //{
-    //    try
-    //    {
-    //        var result = await productVariantService.GetProductVariants();
-    //        if (result != null)
-    //        {
-    //            return new Response<List<ProductInfoDto>>()
-    //            {
-    //                Data = result,
-    //                Message = "List of products fetched successfully",
-    //                StatusCode = System.Net.HttpStatusCode.OK
-    //            };
-    //        }
-    //        else
-    //        {
-    //            return new Response<List<ProductInfoDto>>()
-    //            {
-    //                Message = "Product not found",
-    //                Data = null,
-    //                StatusCode = System.Net.HttpStatusCode.NoContent
-    //            };
-    //        }
-    //    }
-    //    catch (Exception e)
-    //    {
-    //        return new Response<List<ProductInfoDto>>()
-    //        {
-    //            Data = null,
-    //            Message = e.Message,
-    //            StatusCode = System.Net.HttpStatusCode.InternalServerError
-    //        };
-    //    }
-    //}
+    [HttpGet("{id}")]
+    public async Task<Response<VariantResponseDto>> GetVariantById(int id)
+    {
+        try
+        {
+            var result = await productVariantService.GetVariantById(id);
+            if (result != null)
+            {
+                return new Response<VariantResponseDto>()
+                {
+                    Data = result,
+                    Message = "Product Variant fetched successfully",
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+            }
+            else
+            {
+                return new Response<VariantResponseDto>()
+                {
+                    Message = "Product Variant not found",
+                    Data = null,
+                    StatusCode = System.Net.HttpStatusCode.NoContent
+                };
+            }
+        }
+        catch (Exception e)
+        {
+            return new Response<VariantResponseDto>()
+            {
+                Data = null,
+                Message = e.Message,
+                StatusCode = System.Net.HttpStatusCode.InternalServerError
+            };
+        }
+    }
 
     [HttpGet("{categoryId}")]
     public async Task<Response<ProductVariantResponseDto>> GetProductVariants(int categoryId)
@@ -175,6 +175,8 @@ public class ProductVariantController : ControllerBase
         }
     }
     [Authorize(Roles = "Admin")]
+
+
     [HttpPut("{id}")]
     public async Task<Response<bool>> UpdateProductVariant(ProductVariantRequestDto variant, int id)
     {

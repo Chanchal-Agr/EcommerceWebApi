@@ -197,6 +197,7 @@ public class ProductVariantService : IProductVariantService
                 SizeId = variant.SizeId,
                 ColourName = variant.Colour.Name,
                 SizeName = variant.Size.Name,
+                ProductId=variant.ProductId,
                 ProductName = variant.Product.Name,
                 Path = variant.Path?.Split('|').ToList(),
                 Price = variant.Stocks?.Where(x => x.IsActive).Max(x => x?.SellingPrice) ?? 0

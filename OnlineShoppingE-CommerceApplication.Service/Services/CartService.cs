@@ -16,12 +16,12 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
         {
             this.dbContext = dbContext;
         }
-        
-        public async Task<int> Post(CartDto cartDto,int customerId)
+
+        public async Task<int> Post(CartDto cartDto, int customerId)
         {
-            
+
             Cart cart = new Cart();
-            Cart? cartExists = await dbContext.Cart.FirstOrDefaultAsync(x => x.ProductVariantId == cartDto.ProductVariantId && x.CustomerId==customerId);
+            Cart? cartExists = await dbContext.Cart.FirstOrDefaultAsync(x => x.ProductVariantId == cartDto.ProductVariantId && x.CustomerId == customerId);
             //cart.Price = dbContext.Stock.Where(x => x.ProductVariantId == cartDto.ProductVariantId && x.IsActive == true).Max(x => x.SellingPrice);
             int totalQuantity = dbContext.Stock.Where(x => x.ProductVariantId == cartDto.ProductVariantId && x.IsActive == true).Sum(x => x.StockToSale);
             if (cartExists != null)
@@ -42,23 +42,22 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                 return cart.Id;
             }
         }
-            
-        
+
+
         public async Task<CartInfoDto> GetDetails(int customerId)
         {
             CartInfoDto cartInfo = new CartInfoDto();
-            var cart =  await dbContext.Cart.Include(p=>p.ProductVariant).ThenInclude(p=>p.Product).Where(s => s.CustomerId == customerId).ToListAsync();
+            var cart = await dbContext.Cart.Include(p => p.ProductVariant).ThenInclude(p => p.Product).Where(s => s.CustomerId == customerId).ToListAsync();
             if (cart.IsNullOrEmpty())
             {
                 return null;
             }
             else
             {
-                
                 cartInfo.CartDetails = new List<CartDetail>();
                 foreach (var item in cart)
                 {
-                    
+
                     cartInfo.CartDetails.Add(new CartDetail
                     {
                         Id = item.Id,
@@ -68,19 +67,20 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                         Quantity = item.Quantity,
                         ProductId = item.ProductVariant.ProductId,
                         ProductName = item.ProductVariant.Product.Name,
+                        Stock = dbContext.Stock?.Where(x => x.ProductVariantId == item.ProductVariantId && x.IsActive).Sum(x => x.StockToSale) ?? 0
                     });
                 }
                 cartInfo.TotalItems = cartInfo.CartDetails.Count();
                 foreach (var item in cartInfo.CartDetails)
-                    cartInfo.TotalPrice+= item.Price * item.Quantity;
+                    cartInfo.TotalPrice += item.Price * item.Quantity;
                 //Thread.Sleep(10000);
                 return cartInfo;
 
             }
         }
-        public async Task<bool> Delete(int customerId,int id)
+        public async Task<bool> Delete(int customerId, int id)
         {
-            var cartToDelete = dbContext.Cart.FirstOrDefault(x => x.Id == id && x.CustomerId== customerId);
+            var cartToDelete = dbContext.Cart.FirstOrDefault(x => x.Id == id && x.CustomerId == customerId);
             if (cartToDelete != null)
             {
                 dbContext.Remove(cartToDelete);
@@ -90,10 +90,10 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
             else
                 return false;
         }
-        public async Task<bool> Update(int customerId, int id,int quantity)
+        public async Task<bool> Update(int customerId, int id, int quantity)
         {
-            var cartToUpdate = dbContext.Cart.FirstOrDefault(x => x.Id == id && x.CustomerId==customerId);
-            
+            var cartToUpdate = dbContext.Cart.FirstOrDefault(x => x.Id == id && x.CustomerId == customerId);
+
             if (cartToUpdate != null)
             {
                 int TotalQuantity = dbContext.Stock.Where(x => x.ProductVariantId == cartToUpdate.ProductVariantId && x.IsActive == true).Sum(x => x.StockToSale);
@@ -115,7 +115,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
             }
             else
                 return false;
-            
+
         }
     }
 }

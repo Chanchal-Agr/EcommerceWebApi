@@ -22,6 +22,7 @@ namespace OnlineShoppingE_CommerceApplication.Provider.DTOs
         public double Price { get; set; }
         public string Path { get; set; }
         public int Quantity { get; set; }
+        public int Stock { get; set; }
          
     }
 }

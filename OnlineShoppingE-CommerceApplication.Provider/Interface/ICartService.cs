@@ -13,6 +13,6 @@ namespace OnlineShoppingE_CommerceApplication.Provider.Interface
         Task<CartInfoDto> GetDetails(int customerId);
         Task<bool> Delete(int customerId,int id);
         Task<bool> Update(int customerId, int id,int quantity);
-
+        Task<int> GetCartCount(int customerId);
     }
 }

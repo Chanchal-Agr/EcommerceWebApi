@@ -73,7 +73,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                 cartInfo.TotalItems = cartInfo.CartDetails.Count();
                 foreach (var item in cartInfo.CartDetails)
                     cartInfo.TotalPrice += item.Price * item.Quantity;
-                //Thread.Sleep(10000);
+
                 return cartInfo;
 
             }
@@ -117,5 +117,17 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                 return false;
 
         }
+
+        public async Task<int> GetCartCount(int customerId)
+        {
+            int cartCount = 0;
+            var cart = await dbContext.Cart.Where(s => s.CustomerId == customerId).ToListAsync();
+            if (!cart.IsNullOrEmpty())
+            {
+                cartCount = cart.Count();
+            }
+            return cartCount;
+        }
     }
 }
+

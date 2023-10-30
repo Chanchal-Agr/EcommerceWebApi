@@ -178,5 +178,37 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
                 return response;
             }
         }
+
+        [HttpGet]
+        [Authorize(Roles = "Customer")]
+        public async Task<Provider.Entities.Response<int>> GetCartCount()
+        {
+            try
+            {
+                int id = Convert.ToInt32(HttpContext.User.Claims.First(c => c.Type == "Id").Value);
+
+                var result = await cartService.GetCartCount(id);
+                
+                    Provider.Entities.Response<int> cart = new Provider.Entities.Response<int>()
+                    {
+                        Data = result,
+                        Message = "Cart count fetched successfully",
+                        StatusCode = System.Net.HttpStatusCode.OK
+                    };
+                    return cart;
+
+            }
+            catch (Exception e)
+            {
+                Provider.Entities.Response<int> cart = new Provider.Entities.Response<int>()
+                {
+                    Data = 0,
+                    Message =e.Message,
+                    StatusCode = System.Net.HttpStatusCode.InternalServerError
+                };
+                return cart;
+            }
+        }
+
     }
 }

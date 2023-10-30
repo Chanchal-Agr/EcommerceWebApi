@@ -208,12 +208,12 @@ public class OrderService : IOrderService
         }
     }
 
-    public async Task<OrderInfoDto> GetOrders(OrderQuery query)
+    public async Task<OrderInfoDto> GetOrders(OrderQuery query, int customerId)
     {
 
         OrderInfoDto orderDetail = new OrderInfoDto();
         query.EndDate = query.EndDate?.Date.AddDays(1).AddSeconds(-1);
-        var orders = dbContext.Order.Where(x => x.CustomerId == query.CustomerId && (
+        var orders = dbContext.Order.Where(x => x.CustomerId == customerId && (
         query.StartDate != null ? (query.EndDate != null ? (x.CreatedAt >= query.StartDate && x.CreatedAt <= query.EndDate) : x.CreatedAt >= query.StartDate) : (query.EndDate != null ? x.CreatedAt <= query.EndDate : true)) && (query.Status != null ? x.Status == query.Status : true));
         if (!orders.Any())
             return null;

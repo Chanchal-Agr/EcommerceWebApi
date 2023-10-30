@@ -108,7 +108,8 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
         {
             try
             {
-                var result = await orderService.GetOrders(query);
+                int? customerId = Convert.ToInt32(HttpContext?.User?.Claims?.FirstOrDefault(c => c.Type == "Id")?.Value);
+                var result = await orderService.GetOrders(query, customerId ?? 0);
                 if (result != null)
                 {
                     return new Provider.Entities.Response<OrderInfoDto>()
@@ -179,15 +180,15 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
             }
         }
 
-        [Authorize]
-        [HttpGet("{customerId}/{orderId}")]
-        public async Task<IActionResult> GenerateInvoice(int customerId, int orderId)
-        {
-            var ss = await orderService.GenerateInvoice(customerId, orderId);
-            if(ss!=null)
-               return File(ss.Item1, "application/pdf", ss.Item2);
+        //[Authorize]
+        //[HttpGet("{customerId}/{orderId}")]
+        //public async Task<IActionResult> GenerateInvoice(int customerId, int orderId)
+        //{
+        //    var ss = await orderService.GenerateInvoice(customerId, orderId);
+        //    if(ss!=null)
+        //       return File(ss.Item1, "application/pdf", ss.Item2);
            
-            return NotFound();
-        }
+        //    return NotFound();
+        //}
     }
 }

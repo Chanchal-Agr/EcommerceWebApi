@@ -10,7 +10,7 @@ namespace OnlineShoppingE_CommerceApplication.Provider.DTOs
 {
     public class OrderQuery : QueryBase
     {
-        public int CustomerId { get; set; }
+        //public int CustomerId { get; set; }
         [DataType(DataType.Date)]
         public DateTime? StartDate { get; set; }
         [DataType(DataType.Date)]

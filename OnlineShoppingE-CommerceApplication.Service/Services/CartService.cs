@@ -48,34 +48,42 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
         {
             CartInfoDto cartInfo = new CartInfoDto();
             var cart = await dbContext.Cart.Include(p => p.ProductVariant).ThenInclude(p => p.Product).Where(s => s.CustomerId == customerId).ToListAsync();
-            if (cart.IsNullOrEmpty())
+            try
             {
-                return null;
-            }
-            else
-            {
-                cartInfo.CartDetails = new List<CartDetail>();
-                foreach (var item in cart)
+                if (cart.IsNullOrEmpty())
                 {
-
-                    cartInfo.CartDetails.Add(new CartDetail
-                    {
-                        Id = item.Id,
-                        ProductVariantId = item.ProductVariantId,
-                        Path = item.ProductVariant.Path.Split('|').First(),
-                        Price = dbContext.Stock.Where(x => x.ProductVariantId == item.ProductVariantId && x.IsActive == true).Max(p => p.SellingPrice),
-                        Quantity = item.Quantity,
-                        ProductId = item.ProductVariant.ProductId,
-                        ProductName = item.ProductVariant.Product.Name,
-                        Stock = dbContext.Stock?.Where(x => x.ProductVariantId == item.ProductVariantId && x.IsActive).Sum(x => x.StockToSale) ?? 0
-                    });
+                    return null;
                 }
-                cartInfo.TotalItems = cartInfo.CartDetails.Count();
-                foreach (var item in cartInfo.CartDetails)
-                    cartInfo.TotalPrice += item.Price * item.Quantity;
 
-                return cartInfo;
+                else
+                {
+                    cartInfo.CartDetails = new List<CartDetail>();
+                    foreach (var item in cart)
+                    {
+                        var data = dbContext.Stock?.Where(x => x.ProductVariantId == item.ProductVariantId && x.IsActive).ToList();
+                        cartInfo.CartDetails.Add(new CartDetail
+                        {
+                            Id = item.Id,
+                            ProductVariantId = item.ProductVariantId,
+                            Path = item.ProductVariant.Path.Split('|').First(),
+                            Price =data.Count>0 ? data.Max(p=>p.SellingPrice):0,
+                            Quantity = item.Quantity,
+                            ProductId = item.ProductVariant.ProductId,
+                            ProductName = item.ProductVariant.Product.Name,
+                            Stock = dbContext.Stock?.Where(x => x.ProductVariantId == item.ProductVariantId && x.IsActive).Sum(x => x.StockToSale) ?? 0
+                        });
+                    }
+                    cartInfo.TotalItems = cartInfo.CartDetails.Count();
+                    foreach (var item in cartInfo.CartDetails)
+                        cartInfo.TotalPrice += item.Price * item.Quantity;
 
+                    return cartInfo;
+
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception();
             }
         }
         public async Task<bool> Delete(int customerId, int id)

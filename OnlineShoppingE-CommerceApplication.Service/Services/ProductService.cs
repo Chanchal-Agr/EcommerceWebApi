@@ -95,6 +95,7 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
 
             if (productQuery.OrderBy != null)
                 data = QueryableExtensions.OrderBy(data, productQuery.OrderBy);
+
             product.TotalRecords = data.Count();
             product.ProductDetails = new List<ProductDetailDto>();
 

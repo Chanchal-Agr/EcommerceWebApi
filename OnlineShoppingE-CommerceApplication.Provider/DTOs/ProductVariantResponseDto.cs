@@ -8,20 +8,14 @@ namespace OnlineShoppingE_CommerceApplication.Provider.DTOs
 {
     public class ProductVariantResponseDto
     {
-        public int CategoryId { get; set; }
-        public string CategoryName { get; set; }
-        public List<ProductResponseDto> Products { get; set; }
+        public List<VariantDto> Variants { get; set; }
+        public int TotalRecords { get;set; }
     }
-    public class ProductResponseDto
+    
+    public class VariantDto
     {
         public int ProductId { get; set; }
         public string ProductName { get; set; }
-        public string ProductDescription { get; set; }
-        public int WishlistId { get; set; } = 0;
-        public List<VariantDto> Variants { get; set; }
-    }
-    public class VariantDto
-    {
         public int Id { get; set; }
         public int SizeId { get; set; }
         public string SizeName { get; set; }

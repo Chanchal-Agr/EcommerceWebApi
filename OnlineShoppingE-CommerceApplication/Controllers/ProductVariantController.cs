@@ -67,6 +67,7 @@ public class ProductVariantController : ControllerBase
     {
         try
         {
+           
             bool ans = await productVariantService.UpdateStatus(id, status);
             if (ans)
             {
@@ -138,13 +139,13 @@ public class ProductVariantController : ControllerBase
         }
     }
 
-    [HttpGet("{categoryId}")]
-    public async Task<Response<ProductVariantResponseDto>> GetProductVariants(int categoryId)
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public async Task<Response<ProductVariantResponseDto>> GetProductVariants(ProductQuery query)
     {
         try
         {
-            int? customerId = Convert.ToInt32(HttpContext?.User?.Claims?.FirstOrDefault(c => c.Type == "Id")?.Value);
-            var result = await productVariantService.GetProductVariants(categoryId, customerId ?? 0);
+            var result = await productVariantService.GetProductVariants(query);
             if (result != null)
             {
                 return new Response<ProductVariantResponseDto>()

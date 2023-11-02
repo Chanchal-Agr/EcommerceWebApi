@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.IdentityModel.Tokens;
+using OnlineShoppingE_CommerceApplication.Provider.Extensions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace OnlineShoppingE_CommerceApplication.Service.Services;
 
@@ -38,7 +41,7 @@ public class ProductVariantService : IProductVariantService
                 else
                 {
                     variantExists.IsActive = true;
-                    variantExists.Path = String.Join("|", item.Base64);
+                    variantExists.Path = System.String.Join("|", item.Base64);
                     variantExists.UpdatedAt = DateTime.Now;
                     dbContext.SaveChanges();
                 }
@@ -50,7 +53,7 @@ public class ProductVariantService : IProductVariantService
                 productVariant.ColourId = item.ColourId;
                 productVariant.ProductId = item.ProductId;
                 productVariant.SizeId = item.SizeId;
-                productVariant.Path = String.Join("|", item.Base64);
+                productVariant.Path = System.String.Join("|", item.Base64);
                 dbContext.ProductVariant.Add(productVariant);
                 dbContext.SaveChanges();
             }
@@ -117,48 +120,70 @@ public class ProductVariantService : IProductVariantService
         return list;
     }
 
-    public async Task<ProductVariantResponseDto> GetProductVariants(int categoryId, int customerId)
+    public async Task<ProductVariantResponseDto> GetProductVariants(ProductQuery query)
     {
         ProductVariantResponseDto response = new ProductVariantResponseDto();
-        List<ProductResponseDto> productList = new List<ProductResponseDto>();
+        var variants = dbContext.ProductVariant.Include(x => x.Size).Include(x => x.Colour).Include(x => x.Stocks).Include(x => x.Product).ThenInclude(x => x.Category).Where(x => x.Product.CategoryId == query.CategoryId && x.Product.Category.IsActive && x.Product.IsActive && x.IsActive).AsQueryable();
 
-        var products = dbContext.Product.Include(c => c.Category).Where(p => p.IsActive && p.Category.IsActive && p.CategoryId == categoryId).ToList();
+        if (!variants.Any())
+            return null;
 
-        response.CategoryId = categoryId;
-        response.CategoryName = products.FirstOrDefault().Category.Name;
-        foreach (var product in products)
+        if (query.OrderBy != null)
+            variants = QueryableExtensions.OrderBy(variants, query.OrderBy);
+
+        response.TotalRecords = variants.Count();
+        response.Variants = new List<VariantDto>();
+        if (query.IsPagination)
         {
-            var wishlist = dbContext.Wishlist.FirstOrDefault(x => x.CustomerId == customerId && x.ProductId == product.Id);
-            var variantList = dbContext.ProductVariant.Include(x => x.Size).Include(x => x.Colour).Include(x => x.Stocks).Where(x => x.ProductId == product.Id && x.IsActive).ToList();
+            int TotalPages = (int)Math.Ceiling(response.TotalRecords / (double)query.PageSize);
 
-            List<VariantDto> variants = new List<VariantDto>();
-            variants = variantList.Select(p => new VariantDto()
+            var productVariants = variants.Skip((query.PageIndex - 1) * query.PageSize).Take(query.PageSize).ToList();
+
+            foreach (var item in productVariants)
             {
-                Id = p.Id,
-                Path = p.Path?.Split('|').ToList(),
-                SizeId = p.SizeId,
-                SizeName = p.Size?.Name,
-                ColourId = p.ColourId,
-                ColourName = p.Colour?.Name,
-                Stock = p.Stocks?.Where(x => x.IsActive).Sum(x => x?.StockToSale) ?? 0,
-                Price = p.Stocks?.Where(x => x.IsActive).Max(x => x?.SellingPrice) ?? 0
-            }).ToList();
+                response.Variants.Add(new VariantDto
+                {
+                    ProductId = item.ProductId,
+                    ProductName = item.Product.Name,
+                    Id = item.Id,
+                    SizeId = item.SizeId,
+                    SizeName = item.Size.Name,
+                    ColourId = item.ColourId,
+                    ColourName = item.Colour.Name,
+                    Stock = item.Stocks?.Where(x => x.IsActive).Sum(x => x?.StockToSale) ?? 0,
+                    Price = item.Stocks?.Where(x => x.IsActive).Max(x => x?.SellingPrice) ?? 0,
+                    //Path=item.Path.Split("|").ToList()
+                    Path = new List<string>()
 
-            productList.Add(new ProductResponseDto()
-            {
-                ProductId = product.Id,
-                ProductName = product.Name,
-                ProductDescription = product?.Description,
-                WishlistId = wishlist != null ? wishlist.Id : 0,
-                Variants = variants
-            });
 
+                });
+            }
         }
-        response.Products = productList;
+        else
+        {
+            foreach (var item in variants)
+            {
+                response.Variants.Add(new VariantDto
+                {
+                    ProductId = item.ProductId,
+                    ProductName = item.Product.Name,
+                    Id = item.Id,
+                    SizeId = item.SizeId,
+                    SizeName = item.Size.Name,
+                    ColourId = item.ColourId,
+                    ColourName = item.Colour.Name,
+                    Stock = item.Stocks?.Where(x => x.IsActive).Sum(x => x?.StockToSale) ?? 0,
+                    Price = item.Stocks?.Where(x => x.IsActive).Max(x => x?.SellingPrice) ?? 0,
+                    //Path=item.Path.Split("|").ToList()
+                    Path = new List<string>()
 
+
+                });
+            }
+        }
         return response;
-
     }
+
     public async Task<bool> UpdateProductVariant(ProductVariantRequestDto variant, int id)
     {
         try
@@ -172,7 +197,7 @@ public class ProductVariantService : IProductVariantService
                 variantToUpdate.UpdatedAt = DateTime.Now;
                 variantToUpdate.SizeId = variant.SizeId;
                 variantToUpdate.ColourId = variant.ColourId;
-                variantToUpdate.Path = String.Join("|", variant.Base64);
+                variantToUpdate.Path = System.String.Join("|", variant.Base64);
 
                 await dbContext.SaveChangesAsync();
                 return true;
@@ -182,12 +207,11 @@ public class ProductVariantService : IProductVariantService
         {
             throw exception;
         }
-
     }
 
     public async Task<VariantResponseDto> GetVariantById(int id)
     {
-        var variant = await dbContext.ProductVariant.Include(x => x.Size).Include(x => x.Colour).Include(x => x.Product).Include(x=>x.Stocks).FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
+        var variant = await dbContext.ProductVariant.Include(x => x.Size).Include(x => x.Colour).Include(x => x.Product).Include(x => x.Stocks).FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
         if (variant is not null)
         {
             VariantResponseDto variantdto = new VariantResponseDto()
@@ -197,7 +221,7 @@ public class ProductVariantService : IProductVariantService
                 SizeId = variant.SizeId,
                 ColourName = variant.Colour.Name,
                 SizeName = variant.Size.Name,
-                ProductId=variant.ProductId,
+                ProductId = variant.ProductId,
                 ProductName = variant.Product.Name,
                 Path = variant.Path?.Split('|').ToList(),
                 Price = variant.Stocks?.Where(x => x.IsActive).Max(x => x?.SellingPrice) ?? 0
@@ -206,5 +230,6 @@ public class ProductVariantService : IProductVariantService
         }
         return null;
     }
+
 
 }

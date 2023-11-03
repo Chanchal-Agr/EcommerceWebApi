@@ -268,7 +268,7 @@ public class OrderService : IOrderService
         //return orderDetail;
         OrderResponseDto response = new OrderResponseDto();
         query.EndDate = query.EndDate?.Date.AddDays(1).AddSeconds(0);
-        var orders = dbContext.Order.Include(x => x.Customer).Where(x => x.CustomerId == customerId && (query.StartDate != null ? (query.EndDate != null ? (x.CreatedAt >= query.StartDate && x.CreatedAt <= query.EndDate) : x.CreatedAt >= query.StartDate) : (query.EndDate != null ? x.CreatedAt <= query.EndDate : true)) && (query.Status != null ? x.Status == query.Status : true));
+        var orders = dbContext.Order.Include(x => x.Customer).Where(x => x.CustomerId == customerId && (query.StartDate != null ? (query.EndDate != null ? (x.CreatedAt >= query.StartDate && x.CreatedAt <= query.EndDate) : x.CreatedAt >= query.StartDate) : (query.EndDate != null ? x.CreatedAt <= query.EndDate : true)) && (query.Status != null ? x.Status == query.Status : true)).AsQueryable();
         if (!orders.Any())
             return null;
         if (query.OrderBy != null)
@@ -288,7 +288,7 @@ public class OrderService : IOrderService
 
             foreach (var item in items)
             {
-                var data = dbContext.OrderDetail.Include(x => x.ProductVariant).ThenInclude(x => x.Product).Where(x => x.OrderId == item.Id);
+                var data = dbContext.OrderDetail.Include(x => x.ProductVariant).ThenInclude(x => x.Product).Where(x => x.OrderId == item.Id).ToList();
 
                 List<ItemDetail> itemDetails = new List<ItemDetail>();
                 foreach (var detail in data)
@@ -324,7 +324,7 @@ public class OrderService : IOrderService
 
             foreach (var item in orders)
             {
-                var data = dbContext.OrderDetail.Include(x => x.ProductVariant).ThenInclude(x => x.Product).Where(x => x.OrderId == item.Id);
+                var data = dbContext.OrderDetail.Include(x => x.ProductVariant).ThenInclude(x => x.Product).Where(x => x.OrderId == item.Id).ToList();
 
                 List<ItemDetail> itemDetails = new List<ItemDetail>();
                 foreach (var detail in data)

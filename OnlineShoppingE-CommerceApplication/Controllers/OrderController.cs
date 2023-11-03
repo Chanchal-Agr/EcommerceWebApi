@@ -104,7 +104,7 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<Provider.Entities.Response<OrderInfoDto>> GetOrders(OrderQuery query)
+        public async Task<Provider.Entities.Response<OrderResponseDto>> GetOrders(OrderQuery query)
         {
             try
             {
@@ -112,7 +112,7 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
                 var result = await orderService.GetOrders(query, customerId ?? 0);
                 if (result != null)
                 {
-                    return new Provider.Entities.Response<OrderInfoDto>()
+                    return new Provider.Entities.Response<OrderResponseDto>()
                     {
                         Data = result,
                         Message = "List of orders fetched successfully",
@@ -121,7 +121,7 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
                 }
                 else
                 {
-                    return new Provider.Entities.Response<OrderInfoDto>()
+                    return new Provider.Entities.Response<OrderResponseDto>()
                     {
                         Data = null,
                         Message = "No order found",
@@ -132,7 +132,7 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
             }
             catch (Exception e)
             {
-                return new Provider.Entities.Response<OrderInfoDto>()
+                return new Provider.Entities.Response<OrderResponseDto>()
                 {
                     Data = null,
                     Message = e.Message,
@@ -141,44 +141,44 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
                 };
             }
         }
-        [HttpGet]
-        [Authorize]
-        public async Task<Provider.Entities.Response<OrderDetailDto>> GetById(int orderId)
-        {
-            try
-            {
-                var result = await orderService.GetById(orderId);
-                if (result != null)
-                {
-                    return new Provider.Entities.Response<OrderDetailDto>()
-                    {
-                        Data = result,
-                        Message = "Order details fetched successfully",
-                        StatusCode = System.Net.HttpStatusCode.OK
-                    };
-                }
-                else
-                {
-                    return new Provider.Entities.Response<OrderDetailDto>()
-                    {
-                        Data = null,
-                        Message = "No order found",
-                        StatusCode = System.Net.HttpStatusCode.NoContent
+        //[HttpGet]
+        //[Authorize]
+        //public async Task<Provider.Entities.Response<OrderDetailDto>> GetById(int orderId)
+        //{
+        //    try
+        //    {
+        //        var result = await orderService.GetById(orderId);
+        //        if (result != null)
+        //        {
+        //            return new Provider.Entities.Response<OrderDetailDto>()
+        //            {
+        //                Data = result,
+        //                Message = "Order details fetched successfully",
+        //                StatusCode = System.Net.HttpStatusCode.OK
+        //            };
+        //        }
+        //        else
+        //        {
+        //            return new Provider.Entities.Response<OrderDetailDto>()
+        //            {
+        //                Data = null,
+        //                Message = "No order found",
+        //                StatusCode = System.Net.HttpStatusCode.NoContent
 
-                    };
-                }
-            }
-            catch (Exception e)
-            {
-                return new Provider.Entities.Response<OrderDetailDto>()
-                {
-                    Data = null,
-                    Message = e.Message,
-                    StatusCode = System.Net.HttpStatusCode.InternalServerError
+        //            };
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return new Provider.Entities.Response<OrderDetailDto>()
+        //        {
+        //            Data = null,
+        //            Message = e.Message,
+        //            StatusCode = System.Net.HttpStatusCode.InternalServerError
 
-                };
-            }
-        }
+        //        };
+        //    }
+        //}
 
         //[Authorize]
         //[HttpGet("{customerId}/{orderId}")]

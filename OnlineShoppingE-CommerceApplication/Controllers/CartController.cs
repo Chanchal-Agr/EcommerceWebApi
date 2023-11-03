@@ -25,15 +25,20 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
                 int customerId = Convert.ToInt32(HttpContext.User.Claims.First(c => c.Type == "Id").Value);
 
                 int id = await cartService.Post(cartDto, customerId);
-
-                Provider.Entities.Response<int> result = new Provider.Entities.Response<int>()
-                {
-                    Data = id,
-                    Message = "Item successfully added to the cart",
-                    StatusCode = System.Net.HttpStatusCode.OK
-                };
-                return result;
-
+                if (id > 0)
+                    return new Provider.Entities.Response<int>()
+                    {
+                        Data = id,
+                        Message = "Item successfully added to the cart",
+                        StatusCode = System.Net.HttpStatusCode.OK
+                    };
+                else
+                    return new Provider.Entities.Response<int>()
+                    {
+                        Data = 0,
+                        Message = "Quantity must be greater than 0",
+                        StatusCode = System.Net.HttpStatusCode.BadRequest
+                    };
             }
             catch (Exception e)
             {
@@ -144,28 +149,28 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
             try
             {
                 var customerId = Convert.ToInt32(HttpContext.User.Claims.First(c => c.Type == "Id").Value);
-                  bool ans = await cartService.Update(customerId, id, quantity);
-                    if (ans)
+                bool ans = await cartService.Update(customerId, id, quantity);
+                if (ans)
+                {
+                    Provider.Entities.Response<bool> response = new Provider.Entities.Response<bool>()
                     {
-                        Provider.Entities.Response<bool> response = new Provider.Entities.Response<bool>()
-                        {
-                            Data = true,
-                            Message = "Cart updated",
-                            StatusCode = System.Net.HttpStatusCode.OK
-                        };
-                        return response;
+                        Data = true,
+                        Message = "Cart updated",
+                        StatusCode = System.Net.HttpStatusCode.OK
+                    };
+                    return response;
 
-                    }
-                    else
+                }
+                else
+                {
+                    Provider.Entities.Response<bool> response = new Provider.Entities.Response<bool>()
                     {
-                        Provider.Entities.Response<bool> response = new Provider.Entities.Response<bool>()
-                        {
-                            Data = true,
-                            Message = " Cart can't updated",
-                            StatusCode = System.Net.HttpStatusCode.OK
-                        };
-                        return response;
-                    }
+                        Data = true,
+                        Message = " Cart can't updated",
+                        StatusCode = System.Net.HttpStatusCode.OK
+                    };
+                    return response;
+                }
             }
             catch (Exception e)
             {
@@ -188,14 +193,14 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
                 int id = Convert.ToInt32(HttpContext.User.Claims.First(c => c.Type == "Id").Value);
 
                 var result = await cartService.GetCartCount(id);
-                
-                    Provider.Entities.Response<int> cart = new Provider.Entities.Response<int>()
-                    {
-                        Data = result,
-                        Message = "Cart count fetched successfully",
-                        StatusCode = System.Net.HttpStatusCode.OK
-                    };
-                    return cart;
+
+                Provider.Entities.Response<int> cart = new Provider.Entities.Response<int>()
+                {
+                    Data = result,
+                    Message = "Cart count fetched successfully",
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+                return cart;
 
             }
             catch (Exception e)
@@ -203,7 +208,7 @@ namespace OnlineShoppingE_CommerceApplication.Controllers
                 Provider.Entities.Response<int> cart = new Provider.Entities.Response<int>()
                 {
                     Data = 0,
-                    Message =e.Message,
+                    Message = e.Message,
                     StatusCode = System.Net.HttpStatusCode.InternalServerError
                 };
                 return cart;

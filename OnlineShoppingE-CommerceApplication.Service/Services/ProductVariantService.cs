@@ -60,6 +60,7 @@ public class ProductVariantService : IProductVariantService
         }
         return true;
     }
+
     public async Task<bool> UpdateStatus(int id, bool status)
     {
         try
@@ -80,6 +81,7 @@ public class ProductVariantService : IProductVariantService
             throw exception;
         }
     }
+
     public async Task<List<ProductInfoDto>> GetProductVariants()
     {
         List<ProductInfoDto> list = new List<ProductInfoDto>();

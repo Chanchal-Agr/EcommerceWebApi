@@ -22,16 +22,17 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
 
             Cart cart = new Cart();
             Cart? cartExists = await dbContext.Cart.FirstOrDefaultAsync(x => x.ProductVariantId == cartDto.ProductVariantId && x.CustomerId == customerId);
+            //variant is active true compulsory
             //cart.Price = dbContext.Stock.Where(x => x.ProductVariantId == cartDto.ProductVariantId && x.IsActive == true).Max(x => x.SellingPrice);
             int totalQuantity = dbContext.Stock.Where(x => x.ProductVariantId == cartDto.ProductVariantId && x.IsActive == true).Sum(x => x.StockToSale);
-            if (cartExists != null)
+            if (cartExists != null && cartDto.Quantity > 0)
             {
                 cartExists.Quantity = (cartDto.Quantity + cartExists.Quantity <= totalQuantity) ? cartDto.Quantity + cartExists.Quantity : throw new StockUnavailableException();
                 cartExists.UpdatedAt = DateTime.Now;
                 await dbContext.SaveChangesAsync();
                 return cartExists.Id;
             }
-            else
+            else if (cartDto.Quantity > 0)
             {
                 cart.CustomerId = customerId;
                 cart.ProductVariantId = cartDto.ProductVariantId;
@@ -41,6 +42,8 @@ namespace OnlineShoppingE_CommerceApplication.Service.Services
                 await dbContext.SaveChangesAsync();
                 return cart.Id;
             }
+            else
+                return 0;
         }
 
 

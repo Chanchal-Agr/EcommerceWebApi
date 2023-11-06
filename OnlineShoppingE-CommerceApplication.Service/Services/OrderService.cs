@@ -304,8 +304,6 @@ public class OrderService : IOrderService
         return response;
     }
 
-
-
     //public async Task<OrderDetailDto> GetById(int orderId)
     //{
     //    OrderDetailDto orderDetail = new OrderDetailDto();

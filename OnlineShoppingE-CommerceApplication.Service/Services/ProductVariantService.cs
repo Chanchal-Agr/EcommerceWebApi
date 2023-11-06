@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.IdentityModel.Tokens;
 using OnlineShoppingE_CommerceApplication.Provider.Extensions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Linq.Dynamic.Core;
 
 namespace OnlineShoppingE_CommerceApplication.Service.Services;
 
@@ -125,7 +126,10 @@ public class ProductVariantService : IProductVariantService
     public async Task<ProductVariantResponseDto> GetProductVariants(ProductQuery query)
     {
         ProductVariantResponseDto response = new ProductVariantResponseDto();
-        var variants = dbContext.ProductVariant.Include(x => x.Size).Include(x => x.Colour).Include(x => x.Stocks).Include(x => x.Product).ThenInclude(x => x.Category).Where(x => x.Product.CategoryId == query.CategoryId && x.Product.Category.IsActive && x.Product.IsActive && x.IsActive).AsQueryable();
+        //var variants = dbContext.ProductVariant.Include(x => x.Size).Include(x => x.Colour).Include(x => x.Stocks).Include(x => x.Product).ThenInclude(x => x.Category).Where(x => x.Product.CategoryId == query.CategoryId && x.Product.Category.IsActive && x.Product.IsActive && x.IsActive).AsQueryable();
+
+        var variants = dbContext.ProductVariant.Include(x => x.Size).Include(x => x.Colour).Include(x => x.Stocks).Include(x => x.Product).ThenInclude(x => x.Category).Where(
+            x => x.IsActive && x.Product.IsActive && x.Product.Category.IsActive && (query.CategoryId != null ? x.Product.CategoryId == query.CategoryId : true) && (query.ProductId != null ? x.Product.Id == query.ProductId : true)).AsQueryable();
 
         if (!variants.Any())
             return null;

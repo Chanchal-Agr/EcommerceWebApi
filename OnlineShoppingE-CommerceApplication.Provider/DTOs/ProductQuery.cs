@@ -9,6 +9,7 @@ namespace OnlineShoppingE_CommerceApplication.Provider.DTOs
     public class ProductQuery : QueryBase
     {
         public int? CategoryId { get; set; }
+        public int? ProductId { get; set; }
        
         
     }

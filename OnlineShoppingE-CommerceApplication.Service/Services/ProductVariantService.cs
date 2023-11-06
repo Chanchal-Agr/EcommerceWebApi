@@ -158,8 +158,8 @@ public class ProductVariantService : IProductVariantService
                     ColourName = item.Colour.Name,
                     Stock = item.Stocks?.Where(x => x.IsActive).Sum(x => x?.StockToSale) ?? 0,
                     Price = item.Stocks?.Where(x => x.IsActive).Max(x => x?.SellingPrice) ?? 0,
-                    //Path=item.Path.Split("|").ToList()
-                    Path = new List<string>()
+                    Path = item.Path.Split("|").ToList()
+                    //Path = new List<string>()
 
 
                 });
@@ -180,8 +180,8 @@ public class ProductVariantService : IProductVariantService
                     ColourName = item.Colour.Name,
                     Stock = item.Stocks?.Where(x => x.IsActive).Sum(x => x?.StockToSale) ?? 0,
                     Price = item.Stocks?.Where(x => x.IsActive).Max(x => x?.SellingPrice) ?? 0,
-                    //Path=item.Path.Split("|").ToList()
-                    Path = new List<string>()
+                    Path = item.Path.Split("|").ToList()
+                    //Path = new List<string>()
 
 
                 });

@@ -29,16 +29,16 @@ public class ProductVariantService : IProductVariantService
         this.environment = environment;
     }
 
-    public async Task<bool> Post(List<ProductVariantDto> variants)
+    public async Task<List<int>> AddProductVariantList(List<ProductVariantDto> variants)
     {
-
+        List<int> ids = new List<int>();
         foreach (var item in variants)
         {
             var variantExists = dbContext.ProductVariant.FirstOrDefault(x => x.ColourId == item.ColourId && x.ProductId == item.ProductId && x.SizeId == item.SizeId);
             if (variantExists != null)
             {
                 if (variantExists.IsActive)
-                    return false;
+                    return ids;
                 else
                 {
                     variantExists.IsActive = true;
@@ -57,9 +57,11 @@ public class ProductVariantService : IProductVariantService
                 productVariant.Path = System.String.Join("|", item.Base64);
                 dbContext.ProductVariant.Add(productVariant);
                 dbContext.SaveChanges();
+                ids.Add(productVariant.Id);
+
             }
         }
-        return true;
+        return ids;
     }
 
     public async Task<bool> UpdateStatus(int id, bool status)
@@ -236,6 +238,8 @@ public class ProductVariantService : IProductVariantService
         }
         return null;
     }
+
+    
 
 
 }

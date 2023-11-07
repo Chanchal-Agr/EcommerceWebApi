@@ -22,42 +22,40 @@ public class ProductVariantController : ControllerBase
 
     [Authorize(Roles = "Admin")]
     [HttpPost]
-    public async Task<Response<bool>> AddProductVariantList(List<ProductVariantDto> productVariant)
+    public async Task<Response<List<int>>> AddProductVariantList(List<ProductVariantDto> productVariant)
     {
         try
         {
-            bool ans = await productVariantService.Post(productVariant);
-            if (ans)
+            List<int> data = await productVariantService.AddProductVariantList(productVariant);
+            if (data.Count()!=0)
             {
-                Response<bool> result = new Response<bool>()
+                return new Response<List<int>>()
                 {
-                    Data = true,
+                    Data = data,
                     Message = "Save successful",
                     StatusCode = System.Net.HttpStatusCode.OK
                 };
-                return result;
+                
             }
             else
-            {
-                Response<bool> result = new Response<bool>()
-                {
-                    Data = false,
+            
+               return new Response<List<int>>()
+               {
+                    Data = data,
                     Message = "Save fail as variant already exists",
-                    StatusCode = System.Net.HttpStatusCode.InternalServerError
-                };
-
-                return result;
-            }
+                    StatusCode = System.Net.HttpStatusCode.BadRequest
+               };
+            
         }
         catch (Exception e)
         {
-            Response<bool> result = new Response<bool>()
+            return new Response<List<int>>()
             {
-                Data = false,
+                Data = null,
                 Message = e.Message,
                 StatusCode = System.Net.HttpStatusCode.InternalServerError
             };
-            return result;
+          
         }
     }
 

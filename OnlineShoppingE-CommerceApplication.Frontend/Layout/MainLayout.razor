@@ -1,4 +1,5 @@
-﻿@inherits LayoutComponentBase
+﻿@using OnlineShoppingECommerceApplication.Frontend.Services
+@inherits LayoutComponentBase
 <AuthorizeView>
     <Authorized>
         <div class="page">
@@ -8,7 +9,7 @@
 
             <main>
                 <div class="top-row px-4">
-                    <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+                    <a @onclick="Logout">Logout</a>
                 </div>
 
                 <article class="content px-4">
@@ -25,3 +26,15 @@
         </script>
     </NotAuthorized>
 </AuthorizeView>
+@code
+{
+    [Inject]
+    public NavigationManager NavigationManager { get; set; }
+    [Inject]
+    public CustomAuthStateProvider Auth { get; set; }
+    private async void Logout()
+    {
+        await Auth.MarkUserAsLoggedOut();
+        NavigationManager.NavigateTo("/");
+    }
+}

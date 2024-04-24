@@ -26,7 +26,7 @@ namespace OnlineShoppingECommerceApplication.Frontend.Services
                 {
                 new Claim(ClaimTypes.Name, "user"),
                 new Claim(ClaimTypes.Role, "admin")
-            };
+                };
                 var identity = new ClaimsIdentity(claims, "jwt");
                 var user = new ClaimsPrincipal(identity);
                 return new AuthenticationState(user);
